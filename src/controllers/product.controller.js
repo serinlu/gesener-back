@@ -27,10 +27,21 @@ const createProduct = async (req, res) => {
 // Obtener todos los productos
 const getProducts = async (req, res) => {
     try {
-        const products = await Product.find().populate('categories', 'name description');
+        const products = await Product.find().populate('categories', 'name'); // Popula el campo 'categories' con el 'name'
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener los productos', error });
+    }
+};
+
+const getProductsByCategoryId = async (req, res) => {
+    const { categoryId } = req.params;
+
+    try {
+        const products = await Product.find({ categories: categoryId }); // Asumiendo que `categories` es un campo en tus productos
+        res.status(200).json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching products by category', error: error.message });
     }
 };
 
@@ -90,6 +101,7 @@ const deleteProduct = async (req, res) => {
 export {
     createProduct,
     getProducts,
+    getProductsByCategoryId,
     getProductById,
     updateProduct,
     deleteProduct
