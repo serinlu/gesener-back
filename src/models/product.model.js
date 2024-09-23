@@ -1,9 +1,15 @@
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
+    sku: {
+        type: Number,
+        required: true,
+        unique: true,
+    },
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     categories: [{
         type: mongoose.Schema.Types.ObjectId,

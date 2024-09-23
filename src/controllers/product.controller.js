@@ -6,18 +6,28 @@ const createProduct = async (req, res) => {
     try {
         const { categories, ...productData } = req.body;
 
-        // Verificar si las categorías existen
+        // Verificar si las categorías existen por nombre y obtener sus IDs
         const existingCategories = await Category.find({ '_id': { $in: categories } });
+
         if (existingCategories.length !== categories.length) {
-            return res.status(400).json({ message: 'Una o más categorías no existen' });
+            return res.status(400).json({
+                message: 'Una o más categorías no existen',
+                existingCategories: existingCategories.map(cat => cat.name),  // Categorías que sí existen
+            });
         }
 
+        // Extraer los IDs de las categorías
+        const categoryIds = existingCategories.map(cat => cat._id);
+
+        // Crear el nuevo producto con los IDs de las categorías
         const newProduct = new Product({
             ...productData,
-            categories  // Aquí se asignan las categorías como array
+            categories: categoryIds  // Asignar los IDs de las categorías
         });
 
         const savedProduct = await newProduct.save();
+
+        // Devolver el producto guardado
         res.status(201).json(savedProduct);
     } catch (error) {
         res.status(500).json({ message: 'Error al crear el producto', error });
