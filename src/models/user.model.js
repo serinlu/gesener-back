@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: false,
     },
     lastname: {
         type: String,
-        required: true,
+        required: false,
     },
     companyName: {
         type: String,
@@ -51,12 +51,10 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: Number,
         required: false,
-        default: "-",
     },
     postalCode: {
         type: Number,
         required: false,
-        default: "-",
     },
     email: {
         type: String,
