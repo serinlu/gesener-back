@@ -1,16 +1,14 @@
 import Brand from "../models/brand.model.js";
 
 const createBrand = async (req, res) => {
-    const brand = new Brand({
-        name: req.body.name,
-        description: req.body.description,
-    });
+    const { name, description } = req.body;
 
     try {
-        const newBrand = await brand.save();
-        res.status(201).json(newBrand);
+        const brand = new Brand({ name, description });
+        await brand.save();
+        res.status(201).json(brand);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: 'Error creating brand', error: error.message });
     }
 }
 
