@@ -30,7 +30,7 @@ const corsOptionsDelegate = {
     credentials: true
 }
 
-app.use(cors(corsOptions));
+app.use(cors(corsOptionsDelegate));
 
 // Routes
 app.use("/api/auth", authRoutes);
