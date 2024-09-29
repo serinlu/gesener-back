@@ -74,16 +74,14 @@ const login = async (req, res) => {
                 // Configurar la cookie con el token (ejemplo: 1 día de duración)
                 res.cookie('token', token, {
                     httpOnly: true, // Hace que la cookie no sea accesible desde JavaScript del lado del cliente
-                    secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
+                    secure: process.env.NODE_ENV === 'production ? true : false', // Solo en HTTPS en producción
                     maxAge: 24 * 60 * 60 * 1000, // 1 día en milisegundos
                     sameSite: 'strict', // Previene ataques CSRF
                 });
 
                 // Retornar la respuesta sin el token en el body, ya que está en la cookie
                 return res.status(200).json({
-                    _id: user._id,
-                    name: user.name,
-                    email: user.email,
+                    token
                 });
             }
         }
@@ -111,7 +109,12 @@ const profile = async (req, res) => {
         // Obtener el usuario autenticado desde el middleware
         const user = req.user;
 
-        return res.status(200).json(user);
+        return res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

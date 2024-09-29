@@ -8,31 +8,20 @@ import productRoutes from './routes/product.route.js';
 import brandRoutes from './routes/brand.route.js';
 
 import cors from 'cors';
+import cookieParser from "cookie-parser";
 
 const app = express();
+app.use(express.json());
+app.use(cookieParser());
 dotenv.config();
 connectDB();
 
 // Middleware
-app.use(express.json());
 
-// const allowlist = process.env.FRONTEND_URL;
-// const corsOptionsDelegate = function (req, callback) {
-//     let corsOptions;
-//     if (allowlist.indexOf(req.header('Origin')) !== -1) {
-//         corsOptions = { origin: true }
-//     } else {
-//         corsOptions = { origin: false }
-//     }
-//     callback(null, corsOptions)
-// }
-
-// app.use(cors(corsOptionsDelegate));
-
-const allowedDomains = [process.env.FRONTEND_URL]
-const corsOptions = {
+const allowlist = [process.env.FRONTEND_URL];
+const corsOptionsDelegate = {
     origin: function (origin, callback) {
-        if (allowedDomains.indexOf(origin) !== -1 || !origin) {
+        if (allowlist.indexOf(origin) !== -1 || !origin) {
             callback(null, true)
         } else {
             callback(new Error('Not allowed by CORS'))
