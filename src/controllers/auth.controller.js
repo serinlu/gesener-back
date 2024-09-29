@@ -106,4 +106,15 @@ const logout = async (req, res) => {
     }
 }
 
-export { register, login, logout };
+const profile = async (req, res) => {
+    try {
+        // Obtener el usuario autenticado desde el middleware
+        const user = req.user;
+
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export { register, login, logout, profile };

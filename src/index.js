@@ -16,18 +16,32 @@ connectDB();
 // Middleware
 app.use(express.json());
 
-const allowlist = process.env.FRONTEND_URL;
-const corsOptionsDelegate = function (req, callback) {
-    let corsOptions;
-    if (allowlist.indexOf(req.header('Origin')) !== -1) {
-        corsOptions = { origin: true }
-    } else {
-        corsOptions = { origin: false }
-    }
-    callback(null, corsOptions)
+// const allowlist = process.env.FRONTEND_URL;
+// const corsOptionsDelegate = function (req, callback) {
+//     let corsOptions;
+//     if (allowlist.indexOf(req.header('Origin')) !== -1) {
+//         corsOptions = { origin: true }
+//     } else {
+//         corsOptions = { origin: false }
+//     }
+//     callback(null, corsOptions)
+// }
+
+// app.use(cors(corsOptionsDelegate));
+
+const allowedDomains = [process.env.FRONTEND_URL]
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (allowedDomains.indexOf(origin) !== -1 || !origin) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    },
+    credentials: true
 }
 
-app.use(cors(corsOptionsDelegate));
+app.use(cors(corsOptions));
 
 // Routes
 app.use("/api/auth", authRoutes);
