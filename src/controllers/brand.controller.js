@@ -22,41 +22,62 @@ const getBrands = async (req, res) => {
 }
 
 const getBrand = async (req, res) => {
+    const { id } = req.params
+
     try {
-        const brand = await Brand.findById(req.params.id);
+        const brand = await Brand.findById(id)
+        if (!brand) {
+            return res.status(404).json({ message: 'Brand not found' });
+        }
         res.status(200).json(brand);
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(404).json({
+            message: error.message
+        });
     }
 }
 
 const updateBrand = async (req, res) => {
-    try {
-        const brand = await Brand.findById(req.params.id);
-        brand.name = req.body.name;
-        brand.description = req.body.description;
+    const { id } = req.params
+    const { name, description } = req.body;
 
-        const updatedBrand = await brand.save();
+    try {
+        const updatedBrand = await Brand.findByIdAndUpdate(
+            id,
+            { name, description },
+            { new: true }
+        );
+
+        if (!updatedBrand) {
+            return res.status(404).json({ message: 'Brand not found' });
+        }
         res.status(200).json(updatedBrand);
+
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(400).json({ message: 'Error updating brand', error: error.message });
     }
 }
 
 const deleteBrand = async (req, res) => {
+    const { id } = req.params
+
     try {
-        const brand = await Brand.findById(req.params.id);
-        await brand.remove();
-        res.status(200).json({ message: "Brand deleted successfully" });
+        const deletedBrand = await Brand.findByIdAndDelete(id);
+
+        if (!deletedBrand) {
+            return res.status(404).json({ message: 'Brand not found' });
+        }
+        res.status(200).json({ message: 'Brand deleted' });
+
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        res.status(400).json({ message: 'Error deleting brand', error: error.message });
     }
 }
 
-export { 
-    createBrand, 
-    getBrands, 
-    getBrand, 
-    updateBrand, 
-    deleteBrand 
+export {
+    createBrand,
+    getBrands,
+    getBrand,
+    updateBrand,
+    deleteBrand
 };

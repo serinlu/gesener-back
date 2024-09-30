@@ -7,7 +7,7 @@ const categorySchema = new mongoose.Schema({
     unique: true
   },
   description: String
-}, {timestamps: true});
+}, { timestamps: true });
 
 const Category = mongoose.model('Category', categorySchema);
 
