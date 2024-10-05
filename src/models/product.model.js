@@ -16,6 +16,10 @@ const productSchema = new mongoose.Schema({
         ref: 'Brand',
         required: true,
     },
+    model: {
+        type: String,
+        required: false,
+    },
     categories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category', // Asegúrate de que el nombre del modelo coincida con el import
