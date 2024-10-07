@@ -40,7 +40,7 @@ const register = async (req, res) => {
         const userCreated = await user.save();
 
         // Generar el token
-        const token = generateToken(userCreated._id);
+        const token = generateToken(userCreated._id, userCreated.role);
 
         // Enviar la respuesta con los datos esenciales del usuario y el token
         return res.status(200).json({
@@ -69,7 +69,7 @@ const login = async (req, res) => {
 
             if (matchPassword) {
                 // Generar el token
-                const token = generateToken(user._id);
+                const token = generateToken(user._id, user.role);
 
                 // Configurar la cookie con el token (ejemplo: 1 día de duración)
                 res.cookie('token', token, {

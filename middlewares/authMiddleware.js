@@ -7,7 +7,8 @@ const authMiddleware = async (req, res, next) => {
 
     if (!token) {
         // return res.status(401).json({ message: "No token provided" });
-        return null;
+        // return null;
+        return res.json({ message: "No token provided" });
     }
 
     try {
