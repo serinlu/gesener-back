@@ -8,7 +8,8 @@ const authMiddleware = async (req, res, next) => {
     if (!token) {
         // return res.status(401).json({ message: "No token provided" });
         // return null;
-        return res.json({ message: "No token provided" });
+        // return res.json({ message: "No token provided" });
+        console.log("No token provided");
     }
 
     try {
@@ -16,7 +17,8 @@ const authMiddleware = async (req, res, next) => {
         req.user = await User.findById(decoded._id).select("-password");
         next();
     } catch (error) {
-        return res.json({ message: "Invalid token" });
+        // return res.json({ message: "Invalid token" });
+        console.log("Invalid token")
     }
 };
 
