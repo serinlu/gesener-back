@@ -112,6 +112,18 @@ const profile = async (req, res) => {
         return res.status(200).json({
             _id: user._id,
             name: user.name,
+            lastname: user.lastname,
+            companyName: user.companyName,
+            socialReason: user.socialReason,
+            tipoDocumento: user.tipoDocumento,
+            numDoc: user.numDoc,
+            country: user.country,
+            address: user.address,
+            province: user.province,
+            district: user.district,
+            city: user.city,
+            postalCode: user.postalCode,
+            phone: user.phone,
             email: user.email,
             role: user.role,
         });
