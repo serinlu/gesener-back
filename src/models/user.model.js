@@ -22,7 +22,6 @@ const userSchema = new mongoose.Schema({
     ruc: {
         type: Number,
         required: false,
-        default: "-",
     },
     tipoDocumento: {
         type: String,

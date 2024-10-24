@@ -69,4 +69,56 @@ const updateUser = async (req, res) => {
     }
 }
 
-export { getUserById, getAllUsers, updateUser };
+const changeRole = async (req, res) => {
+    const { id } = req.params; // ID del usuario cuyo rol se va a cambiar
+    const { role, password, email } = req.body; // Obteniendo el nuevo rol, la contraseña y el email del admin del cuerpo de la solicitud
+
+    // Función para verificar si el usuario autenticado tiene permisos de admin
+    const verifyAdminLog = async (req, res) => {
+        const user = req.user; // Usuario autenticado (usando middleware de autenticación)
+
+        // Verificar si el usuario autenticado tiene rol de admin
+        if (user.role !== "admin") {
+            return res.status(403).json({ message: "No tiene permisos para cambiar el rol de otro usuario" });
+        }
+
+        // Validar si el correo proporcionado corresponde a un administrador en la base de datos
+        const adminUser = await User.findOne({ email: email });
+        if (!adminUser || adminUser.role !== 'admin') {
+            return res.status(404).json({ message: "Usuario administrador no encontrado o no tiene permisos de administrador" });
+        }
+
+        // Comparar la contraseña ingresada con la almacenada en la base de datos
+        const matchPassword = await bcrypt.compare(password, adminUser.password);
+        if (!matchPassword) {
+            return res.status(401).json({ message: "Contraseña incorrecta" });
+        }
+    };
+
+    try {
+        // Verificar acceso de admin y validación de correo y contraseña
+        await verifyAdminLog(req, res);
+
+        // Buscar el usuario cuyo rol se va a cambiar
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        // Verificar si el usuario tiene rol de "user" 
+        // RESTRICCION PARA EVITAR QUE UN ADMIN CAMBIE EL ROL DE OTRO ADMIN
+
+        // if (user.role !== 'user') {
+        //     return res.status(403).json({ message: "Solo se pueden cambiar los roles de usuarios con rol 'user'" });
+        // }
+
+        // Cambiar el rol del usuario
+        user.role = role;
+        await user.save(); // Guardar el usuario actualizado
+        res.status(200).json(user); // Enviar respuesta exitosa
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+export { getUserById, getAllUsers, updateUser, changeRole };
