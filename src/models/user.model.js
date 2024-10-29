@@ -3,11 +3,11 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: false,
+        required: true,
     },
     lastname: {
         type: String,
-        required: false,
+        required: true,
     },
     companyName: {
         type: String,
@@ -25,17 +25,16 @@ const userSchema = new mongoose.Schema({
     },
     tipoDocumento: {
         type: String,
-        required: true,
+        required: false,
     },
     numDoc: {
         type: Number,
-        required: true,
+        required: false,
         unique: true,
     },
-    country: {
-        type: String,
+    department: {
+        type: Number,
         required: false,
-        default: "-",
     },
     address: {
         type: String,
@@ -43,14 +42,12 @@ const userSchema = new mongoose.Schema({
         default: "-",
     },
     province: {
-        type: String,
+        type: Number,
         required: false,
-        default: "-",
     },
     district: {
-        type: String,
+        type: Number,
         required: false,
-        default: "-",
     },
     city: {
         type: String,

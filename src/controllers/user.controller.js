@@ -27,9 +27,10 @@ const updateUser = async (req, res) => {
         lastname,
         companyName,
         socialReason,
+        ruc,
         tipoDocumento,
         numDoc,
-        country,
+        department,
         address,
         province,
         district,
@@ -41,24 +42,20 @@ const updateUser = async (req, res) => {
 
     try {
         const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
 
-        // Actualizar solo si se proporcionan nuevos valores
-        user.name = name || user.name;
-        user.lastname = lastname || user.lastname;
-        user.companyName = companyName || user.companyName;
-        user.socialReason = socialReason || user.socialReason;
-        user.tipoDocumento = tipoDocumento || user.tipoDocumento;
-        user.numDoc = numDoc || user.numDoc;
-        user.country = country || user.country;
-        user.address = address || user.address;
-        user.province = province || user.province;
-        user.district = district || user.district;
-        user.phone = phone || user.phone;
-        user.postalCode = postalCode || user.postalCode;
-        user.email = email || user.email;
+        // Actualiza solo los campos proporcionados en req.body
+        Object.keys(req.body).forEach((key) => {
+            if (key !== 'password') { // Se maneja password por separado
+                user[key] = req.body[key] !== undefined ? req.body[key] : user[key];
+            }
+        });
 
+        // Si se envía password, hashearla y actualizarla
         if (password) {
-            const salt = await bcrypt.genSalt(10); // Generar salt (si usas bcrypt)
+            const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(password, salt);
         }
 
@@ -68,6 +65,8 @@ const updateUser = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
+
+
 
 const changeRole = async (req, res) => {
     const { id } = req.params; // ID del usuario cuyo rol se va a cambiar

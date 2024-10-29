@@ -1,11 +1,13 @@
 import dotenv from "dotenv";
 import express from "express";
 import connectDB from "../config/db.js";
+import { storage, bucket } from "../config/gcpStorage.js";
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import categoryRoutes from './routes/category.route.js';
 import productRoutes from './routes/product.route.js';
 import brandRoutes from './routes/brand.route.js';
+import imageRoutes from './routes/image.route.js'
 
 import cors from 'cors';
 import cookieParser from "cookie-parser";
@@ -38,6 +40,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/brands", brandRoutes);
+app.use('/api/images', imageRoutes)
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000");

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "amazing-zephyr-439000-e3",
+  "private_key_id": "5987792470996c71cde2b357550abb5baac09630",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEuwIBADANBgkqhkiG9w0BAQEFAASCBKUwggShAgEAAoIBAQC5VWh15SaPYvVy\n6ZXY+KZiY/0Gi/4G3fAd2Gf2pzFWRz4tF9IilJe9qABHmszgfYBKSKLlUT4eyIBR\ncSymfm3nAY6UlQY0R0LA65nwETz0nDPy5k4DNGBfVqEqhi3uuVUQn1w7orOWgFVU\n13mlEIR0ukqDzbygfdjzfCzXXNuo0T6FGNMO/8n6XO9aJyHeO3msOtpvIOzYkQGZ\n8n3OdgAX2PkCM8/bhajT6LDOzm7pukbR/gsHBpRPzXkG7/0Pogb3GeO48grWp9FN\n3l8rz7BhBoO2uICNFqQHKK7172CAX0rJFBpfT/wxEG++5ibq20PnBjo8J4n5aw2m\nKnUDe5ypAgMBAAECgf5RhQc+v4i6do278O0N0gAcrHLQoqEkxwFmPew1x00bFZw1\nakpy5Qoc/IucxDjPQ7VIgwJtBESdClP+XG/TIzdBPbEb3xMDeecC5Zfh8o19mXuv\nkWIF3ZHtYTw/7lbbEGKfVxxt1e/MtLk1jLhuRSObMY30qIJi/RMQ89GUSAhhHyX/\nFNMRdKMEb8Nr1NGkcCrCeozLwIEk4rMLdqTNbO0S57gZzbqIGj/Mc2EAMO+Xbop+\noHDcW9uVQMolfaCK7DQeFfIjRyU/KLNm897s/mxTjTkEO8jIXCCdKmk2HQTHtMih\nDj1lZHGohOIubH1izmRmNlAERqoNTI6ICnnC4wKBgQDwfXIH3E1nq4h+WqgXQpG8\naYZ/DMPtliE+uzYOP/QWNyRo1DGLRPCi9njoVkyHaY5oeIx30aHEn7c/6BZPHDrI\nRPZWj8PANRJfGg6RwcNsYyneVbplbgmJbt5+AWEVp1Ek4MSB+sWF7yoPv4MuonK1\nWKX33rOPy0yRVBDtqFkvGwKBgQDFSVDWGWuq6GVT4eAuiVwszF2hEWQiTwyJEbOQ\nUIr2xf5YRQdB/MVCSnw1HlrGyfrd3KuJ4CAQwnG+CFFLW/fNskxp7YLAmj+kYR1J\nT+m/pWnl8EJFAqUUh/bzXdLZFHRD3np4WFkLxUzyXgSPtQYOW6Jpbxi+A9X2I14s\n60iriwKBgQCmv0ROoPjmtfAZNECyiAzGqCCCfVZoqRz6AxKzBLL4qFlNeju0BiQX\nynABIL1FcvI0C8nR1n+k9t03qXO2fKthazemw14GKoZHfKi3dbNLtuIz8Bsi8w4X\nxdDta4VmXzILMPHv8fH9MNxoOPD7Z9XDWekSGc9FF8BKUBDAyGa2GwKBgEDRYbm2\nCGXSjNgOcjVX8+zUCD8PE7Mh/aBbLH/RtpZ1XqdppoTLo5OwHTbmjjSZz85s3f8i\nn+ZhvDUPToZP5Q6z8d8rpbXZ9+bt8U1Q8B+DHVPqqBs8Tzh7o2s5/DhOPBTAV8SK\nYlc3r5xBv4Xnl+HHwYiac6qaYAXKgPqJIwsZAoGBAMAmgjS+MTGHjP5zVqHqfujI\nUxa+2fF0F1wv1SpCU08kL/vKQtuNghj+rBCnzXL/KwgJfCUTkQ3aae2h0Fs5cm2d\n9e4n6U/3MfeUcFTYTRNqoFJYXETL+TkVQMtKqPvP8iLyncgFwNLsQFfy944bx6/C\ncQYx1wjlhFXxI/fXl++8\n-----END PRIVATE KEY-----\n",
+  "client_email": "gesener@amazing-zephyr-439000-e3.iam.gserviceaccount.com",
+  "client_id": "113130498166078360972",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gesener%40amazing-zephyr-439000-e3.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -3,7 +3,7 @@ import generateToken from "../../middlewares/generateToken.js";
 import bcrypt from "bcryptjs";
 
 const register = async (req, res) => {
-    const { email, password, name, lastname, companyName, socialReason, ruc, tipoDocumento, numDoc, country, address, province, district, city, phone, postalCode } = req.body;
+    const { email, password, name, lastname, companyName, socialReason, ruc, tipoDocumento, numDoc, department, address, province, district, city, phone, postalCode } = req.body;
 
     // Verificar si el usuario ya existe
     const userExists = await User.findOne({ email });
@@ -26,7 +26,7 @@ const register = async (req, res) => {
             ruc,
             tipoDocumento,
             numDoc,
-            country,
+            department,
             address,
             province,
             district,
@@ -121,7 +121,7 @@ const profile = async (req, res) => {
             ruc: user.ruc,
             tipoDocumento: user.tipoDocumento,
             numDoc: user.numDoc,
-            country: user.country,
+            department: user.department,
             address: user.address,
             province: user.province,
             district: user.district,
