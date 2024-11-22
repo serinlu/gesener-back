@@ -138,23 +138,22 @@ const profile = async (req, res) => {
 
 const checkPassword = async (req, res) => {
     try {
-        const { email, password } = req.body; // Solo obtenemos la contraseña desde el body
-        // Verificamos si hay un usuario autenticado desde el middleware
-        const user = await User.findOne({ email });
+        const { password } = req.body;
+        const userId = req.user._id;
 
-        // Comparar la contraseña ingresada con la almacenada
+        const user = await User.findById(userId).select('password');
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
-            return res.status(401).json({ message: 'Contraseña correcta' });
+            return res.status(200).json({ message: 'Contraseña correcta' }); // Return 200 for success
+        } else {
+            return res.status(401).json({ message: 'Contraseña incorrecta' });
         }
-
-        // Si la contraseña es correcta
-        res.status(200).json({ message: 'Contraseña incorrecta' });
     } catch (error) {
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
+
 
 
 export { register, login, logout, profile, checkPassword };
