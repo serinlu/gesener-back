@@ -1,112 +1,102 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const OrderModel = new mongoose.Schema({
-    cart: [
-        {
-            product: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Product",
-                required: true,
-            },
-            brand: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Brand",
-                required: true,
-            },
-            categories: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Category",
-                required: true,
-            },
-            model: {
+const orderSchema = new mongoose.Schema(
+    {
+        products: [
+            {
+                title: {
+                    type: String,
+                    required: true
+                },
+                description: {
+                    type: String,
+                },
+                picture_url: {
+                    type: String,
+                },
+                category_id: {
+                    type: String,
+                },
+                quantity: {
+                    type: Number,
+                    required: true
+                },
+                currency_id: {
+                    type: String,
+                    required: true
+                },
+                unit_price: {
+                    type: Number,
+                    required: true
+                }
+            }
+        ],
+        payer: {
+            name: {
                 type: String,
-                required: true,
+                required: true
             },
-            quantity: {
-                type: Number,
-                required: true,
-            },
-            price: {
-                type: Number,
-                required: true,
-            },
-            sku: {
+            surname: {
                 type: String,
-                required: true,
+                required: true
             },
-            imageUrl: {
+            email: {
                 type: String,
-                required: true,
+                required: true
             },
+            phone: {
+                area_code: {
+                    type: String,
+                },
+                number: {
+                    type: String,
+                }
+            },
+            identification: {
+                type: {
+                    type: String,
+                },
+                number: {
+                    type: String,
+                }
+            },
+            address: {
+                street_name: {
+                    type: String,
+                },
+                street_number: {
+                    type: Number,
+                },
+                zip_code: {
+                    type: String,
+                },
+            }
         },
-    ],
-    user: {
-        name: {
+        preference_id: {
             type: String,
             required: true,
+            default: '-'
         },
-        lastname: {
+        payment_id: {
             type: String,
             required: true,
+            default: '-'
         },
-        companyName: {
+        status: {
             type: String,
-            required: false,
+            enum: ['PENDING', 'SUCCESS', 'DENIED'],
+            default: 'PENDING'
         },
-        socialReason: {
-            type: String,
-            required: false,
-        },
-        ruc: {
-            type: String,
-            required: false,
-        },
-        email: {
-            type: String,
-            required: true,
-        },
-        tipoDocumento: {
-            type: String,
-            required: true,
-        },
-        numDoc: {
-            type: String,
-            required: true,
-        },
-        address: {
-            type: String,
-            required: true,
-        },
-        addressReference: {
-            type: String,
-            required: true,
-        },
-        telefono: {
-            type: String,
-            required: true,
-        },
-        department: {
-            type: Number,
-            required: true,
-        },
-        province: {
-            type: Number,
-            required: true,
-        },
-        district: {
-            type: Number,
-            required: true,
-        },
-        postalCode: {
-            type: String,
-            required: true,
-        },
-        orderNotes: {
-            type: String,
-        },
+        creation_date: {
+            type: Date,
+            default: Date.now
+        }
+    },
+    {
+        timestamps: true
     }
-}, {timestamps: true});
+);
 
-const Order = mongoose.model("Order", OrderModel);
+const Order = mongoose.model('Order', orderSchema);
 
 export default Order;

@@ -19,6 +19,7 @@
   "homepage": "https://github.com/serinlu/gesener-back#readme",
   "dependencies": {
     "@google-cloud/storage": "^7.13.0",
+    "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cookie-parser": "^1.4.6",
