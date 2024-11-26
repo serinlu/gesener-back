@@ -4,28 +4,54 @@ const orderSchema = new mongoose.Schema(
     {
         products: [
             {
-                title: {
-                    type: String,
-                    required: true
-                },
-                description: {
-                    type: String,
-                },
-                picture_url: {
-                    type: String,
-                },
-                category_id: {
-                    type: String,
-                },
-                quantity: {
+                sku: {
                     type: Number,
                     required: true
                 },
-                currency_id: {
+                name: {
                     type: String,
                     required: true
                 },
-                unit_price: {
+                brand: {
+                    _id: {
+                        type: mongoose.Schema.Types.ObjectId,
+                        required: true
+                    },
+                    name: {
+                        type: String,
+                        required: true
+                    }
+                },
+                categories: [
+                    {
+                        _id: {
+                            type: mongoose.Schema.Types.ObjectId,
+                            required: true
+                        },
+                        name: {
+                            type: String,
+                            required: true
+                        }
+                    }
+                ],
+                description: {
+                    type: String
+                },
+                price: {
+                    type: Number,
+                    required: true
+                },
+                countInStock: {
+                    type: Number,
+                    required: true
+                },
+                imageUrl: {
+                    type: String
+                },
+                model: {
+                    type: String
+                },
+                quantity: {
                     type: Number,
                     required: true
                 }
@@ -36,7 +62,50 @@ const orderSchema = new mongoose.Schema(
                 type: String,
                 required: true
             },
-            surname: {
+            lastname: {
+                type: String,
+                required: true
+            },
+            invoice: {
+                companyName: {
+                    type: String
+                },
+                socialReason: {
+                    type: String
+                },
+                ruc: {
+                    type: String // Cambiado a String para asegurar flexibilidad
+                }
+            },
+            tipoDocumento: {
+                type: String,
+                required: true
+            },
+            numDoc: {
+                type: String,
+                required: true
+            },
+            address: {
+                type: String,
+                required: true
+            },
+            department: {
+                type: Number,
+                required: true
+            },
+            province: {
+                type: Number,
+                required: true
+            },
+            district: {
+                type: Number,
+                required: true
+            },
+            postalCode: {
+                type: String,
+                required: true
+            },
+            phone: {
                 type: String,
                 required: true
             },
@@ -44,33 +113,10 @@ const orderSchema = new mongoose.Schema(
                 type: String,
                 required: true
             },
-            phone: {
-                area_code: {
-                    type: String,
-                },
-                number: {
-                    type: String,
-                }
-            },
-            identification: {
-                type: {
-                    type: String,
-                },
-                number: {
-                    type: String,
-                }
-            },
-            address: {
-                street_name: {
-                    type: String,
-                },
-                street_number: {
-                    type: Number,
-                },
-                zip_code: {
-                    type: String,
-                },
-            }
+        },
+        total: {
+            type: Number,
+            required: true
         },
         preference_id: {
             type: String,

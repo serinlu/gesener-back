@@ -45,7 +45,7 @@ export const createPaymentPreference = async (order) => {
                     failure: "http://localhost:3000/",
                     pending: "http://localhost:3000/api/orders/pending"
                 },
-                notification_url: "https://webhook.site/5cde00f4-971f-4704-a86d-06c4123a7011/webhook",
+                notification_url: "https://webhook.site/90c5b036-430d-4d2a-af02-82ee2ce08cfa",
             }
         });
 

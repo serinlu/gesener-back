@@ -65,7 +65,7 @@ const receiveWebhook = async (req, res) => {
             const { status, external_reference } = paymentDetails.data;
 
             if (status === 'approved') {
-                const order = await Order.findOne({ _id: external_reference });
+                const order = await OrderModel.findOne({ _id: external_reference });
 
                 if (order) {
                     order.status = 'SUCCESS';
