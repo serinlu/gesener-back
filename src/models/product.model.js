@@ -38,6 +38,11 @@ const productSchema = new mongoose.Schema({
         required: true,
         default: 0,
     },
+    maxItems: {
+        type: Number,
+        required: true,
+        default: 5,
+    },
     imageUrl: {
         type: String,
         required: false,

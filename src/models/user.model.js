@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: false,
         unique: true,
+        sparse: true,
     },
     department: {
         type: Number,
