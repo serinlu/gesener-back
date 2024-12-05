@@ -19,7 +19,7 @@ router.post('/send-reset-email', async (req, res) => {
 
         // Generar token único y configurar expiración
         const token = crypto.randomBytes(32).toString('hex');
-        const tokenExpiry = Date.now() + 3600000; // 1 hora
+        const tokenExpiry = Date.now() + 900000; // 1 hora
 
         // Guardar token y expiración en el usuario
         user.resetPasswordToken = token;
@@ -59,7 +59,7 @@ router.post('/send-reset-email', async (req, res) => {
                 <a href="${resetLink}" style="background: #007bff; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
                   Cambiar contraseña
                 </a>
-                <p>Este enlace es válido por 1 hora.</p>
+                <p>Este enlace es válido por 15 minutos.</p>
             `,
         };
 
