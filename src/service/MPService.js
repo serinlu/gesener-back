@@ -1,5 +1,7 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import dotenv from 'dotenv';
+import Product from "../models/product.model.js";
+import User from "../models/user.model.js";
 
 dotenv.config();
 
@@ -7,39 +9,41 @@ const mercadopago = new MercadoPagoConfig({
     accessToken: process.env.MP_ACCESS_TOKEN
 });
 
-export const createPaymentPreference = async (order) => {
+export const createPaymentPreference = async (orderData) => {
     try {
+        const products = await Product.find({ _id: { $in: orderData.products } });
+        if (!products.length) {
+            throw new Error('No se encontraron los productos especificados.');
+        }
+
+        const user = await User.findById(orderData.payer);
+        if (!user) {
+            throw new Error('No se encontró el usuario especificado.');
+        }
+
         const preference = new Preference(mercadopago);
         const response = await preference.create({
             body: {
-                items: order.products.map(product => ({
-                    title: product.title,
-                    description: product.description,
-                    picture_url: product.picture_url,
-                    category_id: product.category_id,
-                    quantity: product.quantity,
-                    currency_id: product.currency_id,
-                    unit_price: product.unit_price
+                items: products.map(product => ({
+                    id: product._id.toString(),
+                    title: product.name,
+                    description: product.description || 'Sin descripción',
+                    picture_url: product.imageUrl || '',
+                    category_id: (product.categories.map(
+                        category => {
+                            (category._id.length == 1) ? category._id : category._id + ", ";
+                        }
+                    ).toString()),
+                    quantity: 1,
+                    currency_id: 'PEN',
+                    unit_price: product.price
                 })),
                 payer: {
-                    name: order.payer.name,
-                    surname: order.payer.surname,
-                    email: order.payer.email,
-                    phone: {
-                        area_code: order.payer.phone.area_code,
-                        number: order.payer.phone.number
-                    },
-                    identification: {
-                        type: order.payer.identification.type,
-                        number: order.payer.identification.number
-                    },
-                    address: {
-                        street_name: order.payer.address.street_name,
-                        street_number: order.payer.address.street_number,
-                        zip_code: order.payer.address.zip_code
-                    }
+                    name: user.name,
+                    surname: user.lastname || '',
+                    email: user.email,
                 },
-                external_reference: order._id.toString(),
+                external_reference: orderData._id.toString(),
                 back_urls: {
                     success: "http://localhost:3000/",
                     failure: "http://localhost:3000/",

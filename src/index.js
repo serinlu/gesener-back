@@ -8,7 +8,7 @@ import productRoutes from './routes/product.route.js';
 import brandRoutes from './routes/brand.route.js';
 import imageRoutes from './routes/image.route.js'
 import orderRoutes from './routes/order.route.js';
-import paymentRoutes from './routes/payment.route.js';
+// import paymentRoutes from './routes/payment.route.js';
 import newRoute from './routes/new.route.js';
 import successRoute from './routes/success.route.js'
 import RecoverPassword from './apis/recover-password.js'
@@ -52,7 +52,7 @@ app.use('/api/images', imageRoutes)
 app.use('/api/order', orderRoutes)
 app.use('/api/news', newRoute)
 app.use('/api/success', successRoute)
-app.use('/api/payment', paymentRoutes)
+// app.use('/api/payment', paymentRoutes)
 app.use('/api/search', search)
 app.use('/api/recover-password', RecoverPassword)
 
