@@ -50,11 +50,6 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: false,
     },
-    city: {
-        type: String,
-        required: false,
-        default: "-",
-    },
     phone: {
         type: Number,
         required: false,
@@ -83,6 +78,17 @@ const userSchema = new mongoose.Schema({
         required: true,
         enum: ["admin", "user"],
         default: "user",
+    },
+    verificationToken: {
+        type: String,
+    },
+    verificationTokenExpires: {
+        type: Date,
+    },    
+    isVerified: {
+        type: Boolean,
+        required: true,
+        default: false,
     },
 });
 
