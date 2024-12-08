@@ -1,4 +1,5 @@
 import OrderModel from "../models/order.model.js";
+import ProductModel from "../models/product.model.js";
 import { createPaymentPreference } from "../service/MPService.js";
 import axios from 'axios';
 
@@ -6,6 +7,8 @@ const createOrder = async (req, res, next) => {
     try {
         const { products, payer } = req.body;
         const order = new OrderModel({ products, payer });
+        const productsSelected = await ProductModel.find({ _id: { $in: products } });
+        order.total = productsSelected.reduce((acc, product) => acc + product.price, 0);
         await order.save();
         res.status(201).json(order);
     } catch (error) {
@@ -13,7 +16,7 @@ const createOrder = async (req, res, next) => {
     }
 };
 
-const generatePayment = async (req, res, next) => {
+const generatePreference = async (req, res, next) => {
     try {
         const { orderId } = req.params;
         const order = await OrderModel.findById(orderId);
@@ -88,4 +91,4 @@ const receiveWebhook = async (req, res) => {
     }
 };
 
-export { createOrder, generatePayment, success, failure, pending, receiveWebhook };
+export { createOrder, generatePreference, success, failure, pending, receiveWebhook };

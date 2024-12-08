@@ -1,10 +1,10 @@
 import express from "express";
-import { createOrder, generatePayment, success, failure, pending, receiveWebhook } from "../controllers/order.controller.js";
+import { createOrder, generatePreference, success, failure, pending, receiveWebhook } from "../controllers/order.controller.js";
 
 const router = express.Router();
 
 router.post("/create-order", createOrder);
-router.post("/generate-payment/:orderId", generatePayment);
+router.post("/generate-preference/:orderId", generatePreference);
 
 router.get("/success", success);
 router.get("/failure", failure);
