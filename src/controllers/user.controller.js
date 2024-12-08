@@ -66,8 +66,6 @@ const updateUser = async (req, res) => {
     }
 }
 
-
-
 const changeRole = async (req, res) => {
     const { id } = req.params; // ID del usuario cuyo rol se va a cambiar
     const { role, password, email } = req.body; // Obteniendo el nuevo rol, la contraseña y el email del admin del cuerpo de la solicitud
