@@ -2,13 +2,13 @@ import OrderModel from "../models/order.model.js";
 import ProductModel from "../models/product.model.js";
 import { createPaymentPreference } from "../service/MPService.js";
 import axios from 'axios';
+import mongoose from 'mongoose';
 
 const createOrder = async (req, res, next) => {
     try {
         const { products, payer } = req.body;
         const order = new OrderModel({ products, payer });
-        const productsSelected = await ProductModel.find({ _id: { $in: products } });
-        order.total = productsSelected.reduce((acc, product) => acc + product.price, 0);
+        order.total_amount = products.map(product => product.unit_price * product.quantity).reduce((acc, curr) => acc + curr, 0);
         await order.save();
         res.status(201).json(order);
     } catch (error) {
@@ -20,6 +20,7 @@ const generatePreference = async (req, res, next) => {
     try {
         const { orderId } = req.params;
         const order = await OrderModel.findById(orderId);
+        console.log("ORDER: ", order);
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
@@ -36,6 +37,38 @@ const generatePreference = async (req, res, next) => {
         next(error);
     }
 };
+
+// const generatePreference = async (req, res) => {
+//     const { orderId } = req.params;
+
+//     if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+//         return res.status(400).json({ error: 'El ID de la orden es obligatorio y debe ser válido.' });
+//     }
+
+//     try {
+//         const order = await OrderModel.findById(orderId).populate('products payer');
+//         if (!order) {
+//             return res.status(404).json({ error: 'Orden no encontrada.' });
+//         }
+
+//         // Crear preferencia
+//         const preference = await createPaymentPreference(order);
+//         if (!preference || !preference.id) {
+//             return res.status(500).json({ error: 'No se pudo generar la preferencia de pago.' });
+//         }
+
+//         // Guardar preferencia en la orden
+//         order.preference_id = preference.id;
+//         await order.save();
+
+//         return res.status(200).json({ preferenceId: preference.id, initPoint: preference.init_point });
+//     } catch (error) {
+//         console.error('Error en generatePreference:', error);
+//         return res.status(500).json({ error: 'Error al generar la preferencia de pago.' });
+//     }
+// };
+
+
 
 const success = (req, res) => {
     res.json(req.query);

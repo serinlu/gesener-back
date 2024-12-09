@@ -49,7 +49,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/brands", brandRoutes);
 app.use('/api/images', imageRoutes)
-app.use('/api/order', orderRoutes)
+app.use('/api/orders', orderRoutes)
 app.use('/api/news', newRoute)
 app.use('/api/success', successRoute)
 // app.use('/api/payment', paymentRoutes)
