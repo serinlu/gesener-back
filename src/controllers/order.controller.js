@@ -44,7 +44,7 @@ const success = async (req, res) => {
     try {
             const paymentDetails = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
                 headers: {
-                    Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
+                    Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`
                 }
             });
 
