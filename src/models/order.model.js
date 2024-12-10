@@ -14,7 +14,7 @@ const orderSchema = new mongoose.Schema(
                 category_id: [{
                     type: mongoose.Schema.Types.ObjectId,
                     ref: 'Category',
-                    required: true
+                    // required: true
                 }],
                 unit_price: {
                     type: Number,
@@ -56,7 +56,7 @@ const orderSchema = new mongoose.Schema(
                 },
                 street_number: {
                     type: Number,
-                    required: true
+                    // required: true
                 },
                 zip_code: {
                     type: Number,

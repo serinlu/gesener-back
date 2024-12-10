@@ -1,8 +1,6 @@
-import OrderModel from "../models/order.model.js";
-import ProductModel from "../models/product.model.js";
-import { createPaymentPreference } from "../service/MPService.js";
 import axios from 'axios';
-import mongoose from 'mongoose';
+import OrderModel from "../models/order.model.js";
+import { createPaymentPreference } from "../service/MPService.js";
 
 const createOrder = async (req, res, next) => {
     try {
@@ -20,7 +18,6 @@ const generatePreference = async (req, res, next) => {
     try {
         const { orderId } = req.params;
         const order = await OrderModel.findById(orderId);
-        console.log("ORDER: ", order);
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
@@ -38,65 +35,20 @@ const generatePreference = async (req, res, next) => {
     }
 };
 
-// const generatePreference = async (req, res) => {
-//     const { orderId } = req.params;
+const success = async (req, res) => {
+    // res.json(req.query);
 
-//     if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
-//         return res.status(400).json({ error: 'El ID de la orden es obligatorio y debe ser válido.' });
-//     }
-
-//     try {
-//         const order = await OrderModel.findById(orderId).populate('products payer');
-//         if (!order) {
-//             return res.status(404).json({ error: 'Orden no encontrada.' });
-//         }
-
-//         // Crear preferencia
-//         const preference = await createPaymentPreference(order);
-//         if (!preference || !preference.id) {
-//             return res.status(500).json({ error: 'No se pudo generar la preferencia de pago.' });
-//         }
-
-//         // Guardar preferencia en la orden
-//         order.preference_id = preference.id;
-//         await order.save();
-
-//         return res.status(200).json({ preferenceId: preference.id, initPoint: preference.init_point });
-//     } catch (error) {
-//         console.error('Error en generatePreference:', error);
-//         return res.status(500).json({ error: 'Error al generar la preferencia de pago.' });
-//     }
-// };
-
-
-
-const success = (req, res) => {
-    res.json(req.query);
-};
-
-const failure = (req, res) => {
-    return res.json({ message: "Pago fallido" });
-};
-
-const pending = (req, res) => {
-    return res.json({ message: "Pago pendiente" });
-};
-
-const receiveWebhook = async (req, res) => {
-    const payment = req.body;
+    // const paymentId = req.body;
+    const paymentId = req.params.paymentId;
 
     try {
-        if (payment.action === 'payment.created') {
-            const paymentId = payment.data.id;
-
-
             const paymentDetails = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
                 headers: {
                     Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
                 }
             });
 
-            console.log(paymentDetails.data);
+            // console.log(paymentDetails.data);
 
             const { status, external_reference } = paymentDetails.data;
 
@@ -115,13 +67,63 @@ const receiveWebhook = async (req, res) => {
             } else {
                 return res.status(400).json({ message: `Payment status is ${status}` });
             }
-        }
+        // }
 
-        return res.sendStatus(200);
+        // return res.sendStatus(200);
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
     }
 };
 
-export { createOrder, generatePreference, success, failure, pending, receiveWebhook };
+const failure = (req, res) => {
+    return res.json({ message: "Pago fallido" });
+};
+
+const pending = (req, res) => {
+    return res.json({ message: "Pago pendiente" });
+};
+
+const receiveWebhook = async (req, res) => {
+    // const payment = req.body;
+
+    // try {
+    //     if (payment.action === 'payment.created') {
+    //         const paymentId = payment.data.id;
+
+
+    //         const paymentDetails = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+    //             headers: {
+    //                 Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
+    //             }
+    //         });
+
+    //         console.log(paymentDetails.data);
+
+    //         const { status, external_reference } = paymentDetails.data;
+
+    //         if (status === 'approved') {
+    //             const order = await OrderModel.findOne({ _id: external_reference });
+
+    //             if (order) {
+    //                 order.status = 'SUCCESS';
+    //                 order.payment_id = paymentId;
+    //                 await order.save();
+
+    //                 return res.json({ message: "Order updated successfully", order });
+    //             } else {
+    //                 return res.status(404).json({ message: "Order not found" });
+    //             }
+    //         } else {
+    //             return res.status(400).json({ message: `Payment status is ${status}` });
+    //         }
+    //     }
+
+    //     return res.sendStatus(200);
+    // } catch (error) {
+    //     console.log(error);
+    //     return res.status(500).json({ error: error.message });
+    // }
+};
+
+export { createOrder, failure, generatePreference, pending, receiveWebhook, success };
