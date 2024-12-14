@@ -5,7 +5,7 @@ import crypto from "crypto"
 import { google } from 'googleapis';
 import nodemailer from 'nodemailer';
 
-const register = async (req, res) => {
+export const register = async (req, res) => {
     const {
         email,
         password,
@@ -117,6 +117,24 @@ const sendVerificationEmail = async (email, token, name) => {
     }
 };
 
+export const checkEmailExists = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        // Verificar si el correo existe en la base de datos
+        const user = await User.findOne({ email });
+
+        if (user) {
+            return res.status(200).json({ exists: true, message: "El correo ya está registrado." });
+        }
+
+        return res.status(200).json({ exists: false, message: "El correo no está registrado." });
+    } catch (error) {
+        console.error("Error al verificar el correo:", error);
+        res.status(500).json({ message: "Error interno del servidor." });
+    }
+}
+
 export const checkToken = async (req, res) => {
     const { token } = req.params;
 
@@ -140,7 +158,7 @@ export const checkToken = async (req, res) => {
     }
 };
 
-const verifyEmail = async (req, res) => {
+export const verifyEmail = async (req, res) => {
     const { token } = req.params;
 
     try {
@@ -177,7 +195,7 @@ const verifyEmail = async (req, res) => {
     }
 };
 
-const login = async (req, res) => {
+export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
@@ -204,7 +222,7 @@ const login = async (req, res) => {
     }
 };
 
-const logout = async (req, res) => {
+export const logout = async (req, res) => {
     try {
         res.clearCookie('token');
         return res.status(200).json({ message: "Logged out" });
@@ -213,7 +231,7 @@ const logout = async (req, res) => {
     }
 }
 
-const profile = async (req, res) => {
+export const profile = async (req, res) => {
     try {
         const user = req.user;
 
@@ -238,7 +256,7 @@ const profile = async (req, res) => {
 };
 
 
-const checkPassword = async (req, res) => {
+export const checkPassword = async (req, res) => {
     try {
         const { password } = req.body;
         const userId = req.user._id;
@@ -252,5 +270,3 @@ const checkPassword = async (req, res) => {
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
-
-export { register, login, logout, profile, checkPassword, verifyEmail };

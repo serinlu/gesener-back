@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, logout, profile, checkPassword, verifyEmail, checkToken } from '../controllers/auth.controller.js';
+import { register, login, logout, profile, checkPassword, verifyEmail, checkToken, checkEmailExists } from '../controllers/auth.controller.js';
 import authMiddleware from '../../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -7,6 +7,7 @@ const router = express.Router();
 router.post('/register', register);
 router.get('/verify-email/:token', verifyEmail)
 router.get('/checkToken/:token', checkToken)
+router.post('/checkEmail', checkEmailExists)
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/profile', authMiddleware, profile);
