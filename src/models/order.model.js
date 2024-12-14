@@ -1,9 +1,13 @@
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 
 const orderSchema = new mongoose.Schema(
     {
         products: [
             {
+                image_url: {
+                    type: String,
+                    required: true
+                },
                 title: {
                     type: String,
                     required: true
@@ -14,7 +18,7 @@ const orderSchema = new mongoose.Schema(
                 category_id: [{
                     type: mongoose.Schema.Types.ObjectId,
                     ref: 'Category',
-                    // required: true
+                    required: true
                 }],
                 unit_price: {
                     type: Number,
@@ -27,6 +31,11 @@ const orderSchema = new mongoose.Schema(
             }
         ],
         payer: {
+            id: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
             name: {
                 type: String,
                 required: true

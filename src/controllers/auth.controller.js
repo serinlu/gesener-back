@@ -216,11 +216,27 @@ const logout = async (req, res) => {
 const profile = async (req, res) => {
     try {
         const user = req.user;
-        return res.status(200).json(user);
+
+        // Verificar si el usuario está disponible
+        if (!user) {
+            return res.status(400).json({ message: "User not found or not authenticated" });
+        }
+
+        // Devolver el perfil del usuario
+        return res.status(200).json({ 
+            success: true, 
+            message: "User profile retrieved successfully", 
+            user 
+        });
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        console.error("Error retrieving user profile:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: "An error occurred while retrieving the profile" 
+        });
     }
-}
+};
+
 
 const checkPassword = async (req, res) => {
     try {

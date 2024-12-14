@@ -42,31 +42,35 @@ const success = async (req, res) => {
     const paymentId = req.params.paymentId;
 
     try {
-            const paymentDetails = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-                headers: {
-                    Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
-                }
-            });
-
-            // console.log(paymentDetails.data);
-
-            const { status, external_reference } = paymentDetails.data;
-
-            if (status === 'approved') {
-                const order = await OrderModel.findOne({ _id: external_reference });
-
-                if (order) {
-                    order.status = 'SUCCESS';
-                    order.payment_id = paymentId;
-                    await order.save();
-
-                    return res.json({ message: "Order updated successfully", order });
-                } else {
-                    return res.status(404).json({ message: "Order not found" });
-                }
-            } else {
-                return res.status(400).json({ message: `Payment status is ${status}` });
+        const paymentDetails = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            headers: {
+                Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
             }
+        });
+
+        // console.log(paymentDetails.data);
+
+        const { status, external_reference } = paymentDetails.data;
+
+        if (status === 'approved') {
+            const order = await OrderModel.findOne({ _id: external_reference });
+
+            if (order) {
+                // const payerId = paymentDetails.data.payer.id;
+                order.status = 'SUCCESS';
+                order.payment_id = paymentId;
+                // if (payerId) {
+                //     order.payer.id = payerId;
+                // }
+                await order.save();
+
+                return res.json({ message: "Order updated successfully", order });
+            } else {
+                return res.status(404).json({ message: "Order not found" });
+            }
+        } else {
+            return res.status(400).json({ message: `Payment status is ${status}` });
+        }
         // }
 
         // return res.sendStatus(200);
@@ -84,46 +88,27 @@ const pending = (req, res) => {
     return res.json({ message: "Pago pendiente" });
 };
 
-const receiveWebhook = async (req, res) => {
-    // const payment = req.body;
+const getOrderByUser = async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        console.log(userId);
+        // const orders = await OrderModel.find({ 'payer.id': userId });
+        const orders = await OrderModel.findOne({ 'payer.id': userId });
+        console.log(orders);
+        res.status(200).json(orders);
+    } catch (error) {
+        next(error);
+    }
+}
 
-    // try {
-    //     if (payment.action === 'payment.created') {
-    //         const paymentId = payment.data.id;
+const getLastOrderByUser = async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        const order = await OrderModel.findOne({ 'payer.id': userId }).sort({ createdAt: -1 });
+        res.status(200).json(order);
+    } catch (error) {
+        next(error);
+    }
+}
 
-
-    //         const paymentDetails = await axios.get(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-    //             headers: {
-    //                 Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
-    //             }
-    //         });
-
-    //         console.log(paymentDetails.data);
-
-    //         const { status, external_reference } = paymentDetails.data;
-
-    //         if (status === 'approved') {
-    //             const order = await OrderModel.findOne({ _id: external_reference });
-
-    //             if (order) {
-    //                 order.status = 'SUCCESS';
-    //                 order.payment_id = paymentId;
-    //                 await order.save();
-
-    //                 return res.json({ message: "Order updated successfully", order });
-    //             } else {
-    //                 return res.status(404).json({ message: "Order not found" });
-    //             }
-    //         } else {
-    //             return res.status(400).json({ message: `Payment status is ${status}` });
-    //         }
-    //     }
-
-    //     return res.sendStatus(200);
-    // } catch (error) {
-    //     console.log(error);
-    //     return res.status(500).json({ error: error.message });
-    // }
-};
-
-export { createOrder, failure, generatePreference, pending, receiveWebhook, success };
+export { createOrder, failure, generatePreference, pending, success, getOrderByUser, getLastOrderByUser };

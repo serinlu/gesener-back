@@ -27,14 +27,16 @@ export const createPaymentPreference = async (orderData) => {
                 },
                 items: orderData.products.map((product) => ({
                     id: product._id.toString(),
-                    // category_id: product.category_id.toString(),
+                    image_url: product.image_url,
                     title: product.title,
-                    description: product.description,
+                    description: product.description || "Sin descripción",
+                    category_id: product.category_id[0]?._id.toString() || "others", // Usar la primera categoría válida o 'others'
                     quantity: product.quantity,
                     unit_price: product.unit_price,
                     currency_id: 'USD', // O la moneda que estés usando
                 })),
                 payer: {
+                    id: orderData.payer._id,
                     name: orderData.payer.name,
                     surname: orderData.payer.surname,
                     email: orderData.payer.email,
