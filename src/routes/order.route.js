@@ -1,5 +1,5 @@
 import express from "express";
-import { createOrder, failure, generatePreference, getLastOrderByUser, getOrderByUser, pending, success } from "../controllers/order.controller.js";
+import { createOrder, failure, generatePreference, getAllOrdersByUser, getLastOrderByUser, getOrderByUser, pending, success } from "../controllers/order.controller.js";
 
 const router = express.Router();
 
@@ -11,5 +11,6 @@ router.get("/failure", failure);
 router.get("/pending", pending);
 router.get("/getOrderByUser/:userId", getOrderByUser);
 router.get("/getLastOrderByUser/:userId/", getLastOrderByUser);
+router.get("/getAllOrdersByUser/:userId", getAllOrdersByUser);
 
 export default router;

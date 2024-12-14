@@ -48,7 +48,7 @@ const success = async (req, res) => {
             }
         });
 
-        // console.log(paymentDetails.data);
+        console.log(paymentDetails.data);
 
         const { status, external_reference } = paymentDetails.data;
 
@@ -59,6 +59,7 @@ const success = async (req, res) => {
                 // const payerId = paymentDetails.data.payer.id;
                 order.status = 'SUCCESS';
                 order.payment_id = paymentId;
+                order.order_number = paymentDetails.data.order.id;
                 // if (payerId) {
                 //     order.payer.id = payerId;
                 // }
@@ -111,4 +112,15 @@ const getLastOrderByUser = async (req, res, next) => {
     }
 }
 
-export { createOrder, failure, generatePreference, pending, success, getOrderByUser, getLastOrderByUser };
+const getAllOrdersByUser = async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        const orders = await OrderModel.find({ 'payer.id': userId });
+        res.status(200).json(orders);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export { createOrder, failure, generatePreference, getAllOrdersByUser, getLastOrderByUser, getOrderByUser, pending, success };
+

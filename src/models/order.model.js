@@ -73,6 +73,9 @@ const orderSchema = new mongoose.Schema(
                 }
             }
         },
+        order_number: {
+            type: Number,
+        },
         total_amount: {
             type: Number,
             required: true
