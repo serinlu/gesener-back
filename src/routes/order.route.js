@@ -9,6 +9,7 @@ import {
     getOrderByUser,
     pending,
     sendEmailOrderByIdSuccessfully,
+    updateShippingStatusOrderById,
     success,
 } from "../controllers/order.controller.js";
 
@@ -27,6 +28,10 @@ router.get("/getAllOrders", getAllOrders);
 router.post(
     "/sendEmailOrderByIdSuccessfully/:orderId",
     sendEmailOrderByIdSuccessfully
+);
+router.patch(
+    "/updateShippingStatusOrderById/:orderId",
+    updateShippingStatusOrderById
 );
 
 export default router;

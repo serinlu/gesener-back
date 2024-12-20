@@ -55,7 +55,7 @@ const success = async (req, res) => {
             }
         );
 
-        console.log(paymentDetails.data);
+        // console.log(paymentDetails.data);
 
         const { status, external_reference } = paymentDetails.data;
 
@@ -67,7 +67,7 @@ const success = async (req, res) => {
                 order.status = "SUCCESS";
                 order.payment_id = paymentId;
                 order.order_number = paymentDetails.data.order.id;
-                order.delyvery_status = "EN CAMINO";
+                order.shipping_status = "EN CAMINO";
                 // if (payerId) {
                 //     order.payer.id = payerId;
                 // }
@@ -282,6 +282,25 @@ const sendEmailOrderByIdSuccessfully = async (req, res, next) => {
     }
 };
 
+const updateShippingStatusOrderById = async (req, res, next) => {
+    try {
+        const { orderId } = req.params;
+        const { shipping_status } = req.body;
+        const order = await OrderModel.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        order.shipping_status = shipping_status;
+        await order.save();
+
+        res.status(200).json(order);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export {
     createOrder,
     failure,
@@ -293,4 +312,5 @@ export {
     pending,
     sendEmailOrderByIdSuccessfully,
     success,
+    updateShippingStatusOrderById,
 };

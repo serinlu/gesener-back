@@ -93,10 +93,10 @@ const orderSchema = new mongoose.Schema(
             enum: ['PENDING', 'SUCCESS', 'DENIED'],
             default: 'PENDING'
         },
-        delyvery_status: {
+        shipping_status: {
             type: String,
             enum: ['EN CAMINO', 'ENTREGADO'],
-            default: '-'
+            default: 'EN CAMINO'
         },
         creation_date: {
             type: Date,
