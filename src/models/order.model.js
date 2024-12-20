@@ -93,6 +93,11 @@ const orderSchema = new mongoose.Schema(
             enum: ['PENDING', 'SUCCESS', 'DENIED'],
             default: 'PENDING'
         },
+        delyvery_status: {
+            type: String,
+            enum: ['EN CAMINO', 'ENTREGADO'],
+            default: '-'
+        },
         creation_date: {
             type: Date,
             default: Date.now
