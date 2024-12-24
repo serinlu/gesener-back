@@ -1,9 +1,9 @@
-import User from "../models/user.model.js";
-import generateToken from "../../middlewares/generateToken.js";
 import bcrypt from "bcryptjs";
-import crypto from "crypto"
-import { google } from 'googleapis';
-import nodemailer from 'nodemailer';
+import crypto from "crypto";
+import { google } from "googleapis";
+import nodemailer from "nodemailer";
+import generateToken from "../../middlewares/generateToken.js";
+import User from "../models/user.model.js";
 
 export const register = async (req, res) => {
     const {
@@ -26,7 +26,8 @@ export const register = async (req, res) => {
 
     const userExists = await User.findOne({ email });
 
-    if (userExists) return res.status(400).json({ message: "El usuario ya existe" });
+    if (userExists)
+        return res.status(400).json({ message: "El usuario ya existe" });
 
     try {
         const salt = await bcrypt.genSalt(10);
@@ -63,8 +64,9 @@ export const register = async (req, res) => {
         await sendVerificationEmail(user.email, verificationToken, name);
 
         return res.status(201).json({
-            message: "Usuario registrado. Por favor verifica tu correo electrónico.",
-            verificationToken
+            message:
+                "Usuario registrado. Por favor verifica tu correo electrónico.",
+            verificationToken,
         });
     } catch (error) {
         console.error("Error al registrar usuario:", error);
@@ -79,7 +81,9 @@ const sendVerificationEmail = async (email, token, name) => {
             process.env.GMAIL_CLIENT_SECRET,
             process.env.GMAIL_REDIRECT_URI
         );
-        oAuth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
+        oAuth2Client.setCredentials({
+            refresh_token: process.env.GMAIL_REFRESH_TOKEN,
+        });
 
         const accessToken = await oAuth2Client.getAccessToken();
         const transport = nodemailer.createTransport({
@@ -125,15 +129,20 @@ export const checkEmailExists = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (user) {
-            return res.status(200).json({ exists: true, message: "El correo ya está registrado." });
+            return res.status(200).json({
+                exists: true,
+                message: "El correo ya está registrado.",
+            });
         }
 
-        return res.status(200).json({ exists: false, message: "El correo no está registrado." });
+        return res
+            .status(200)
+            .json({ exists: false, message: "El correo no está registrado." });
     } catch (error) {
         console.error("Error al verificar el correo:", error);
         res.status(500).json({ message: "Error interno del servidor." });
     }
-}
+};
 
 export const checkToken = async (req, res) => {
     const { token } = req.params;
@@ -147,14 +156,18 @@ export const checkToken = async (req, res) => {
 
         // Si no se encuentra el usuario o el token es inválido
         if (!user) {
-            return res.status(400).json({ message: 'Token inválido o expirado.' });
+            return res
+                .status(400)
+                .json({ message: "Token inválido o expirado." });
         }
 
         // Respuesta indicando que el token es válido
-        res.status(200).json({ message: 'Token válido. Procede con la verificación.' });
+        res.status(200).json({
+            message: "Token válido. Procede con la verificación.",
+        });
     } catch (error) {
-        console.error('Error al verificar el token:', error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+        console.error("Error al verificar el token:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
     }
 };
 
@@ -169,12 +182,16 @@ export const verifyEmail = async (req, res) => {
         });
 
         if (!user) {
-            return res.status(400).json({ message: 'Token inválido o expirado.' });
+            return res
+                .status(400)
+                .json({ message: "Token inválido o expirado." });
         }
 
         // Si el usuario ya está verificado, no es necesario hacer más
         if (user.isVerified) {
-            return res.status(200).json({ message: 'El correo ya ha sido verificado.' });
+            return res
+                .status(200)
+                .json({ message: "El correo ya ha sido verificado." });
         }
 
         // Marcar al usuario como verificado
@@ -188,10 +205,15 @@ export const verifyEmail = async (req, res) => {
         await user.save();
 
         // Responder con mensaje de éxito
-        res.status(200).json({ message: 'Correo verificado con éxito. Ahora puedes iniciar sesión.' });
+        res.status(200).json({
+            message:
+                "Correo verificado con éxito. Ahora puedes iniciar sesión.",
+        });
     } catch (error) {
-        console.error('Error al verificar el correo:', error);
-        res.status(500).json({ message: 'Error interno al verificar el correo.' });
+        console.error("Error al verificar el correo:", error);
+        res.status(500).json({
+            message: "Error interno al verificar el correo.",
+        });
     }
 };
 
@@ -205,7 +227,7 @@ export const login = async (req, res) => {
 
             if (matchPassword) {
                 const token = generateToken(user._id, user.role);
-                res.cookie('token', token, {
+                res.cookie("token", token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',  
                     maxAge: 24 * 60 * 60 * 1000,
@@ -224,12 +246,12 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
-        res.clearCookie('token');
+        res.clearCookie("token");
         return res.status(200).json({ message: "Logged out" });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
-}
+};
 
 export const profile = async (req, res) => {
     try {
@@ -237,36 +259,46 @@ export const profile = async (req, res) => {
 
         // Verificar si el usuario está disponible
         if (!user) {
-            return res.status(400).json({ message: "User not found or not authenticated" });
+            return res
+                .status(400)
+                .json({ message: "User not found or not authenticated" });
         }
 
         // Devolver el perfil del usuario
-        return res.status(200).json({ 
-            success: true, 
-            message: "User profile retrieved successfully", 
-            user 
+        return res.status(200).json({
+            success: true,
+            message: "User profile retrieved successfully",
+            user,
         });
     } catch (error) {
         console.error("Error retrieving user profile:", error);
-        return res.status(500).json({ 
-            success: false, 
-            message: "An error occurred while retrieving the profile" 
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while retrieving the profile",
         });
     }
 };
-
 
 export const checkPassword = async (req, res) => {
     try {
         const { password } = req.body;
         const userId = req.user._id;
-        const user = await User.findById(userId).select('password');
+        const user = await User.findById(userId).select("password");
+
+        if (!user)
+            return res.status(404).json({ message: "Usuario no encontrado" });
+
+        if (!password)
+            return res
+                .status(400)
+                .json({ message: "La contraseña es requerida" });
+
         const isMatch = await bcrypt.compare(password, user.password);
 
         return isMatch
-            ? res.status(200).json({ message: 'Contraseña correcta' })
-            : res.status(401).json({ message: 'Contraseña incorrecta' })
+            ? res.status(200).json({ message: "Contraseña correcta" })
+            : res.status(401).json({ message: "Contraseña incorrecta" });
     } catch (error) {
-        res.status(500).json({ message: 'Error en el servidor' });
+        res.status(500).json({ message: "Error en el servidor" });
     }
 };
