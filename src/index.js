@@ -28,19 +28,22 @@ connectDB();
 
 // Middleware
 
-const allowlist = [process.env.FRONTEND_URL];
-const corsOptionsDelegate = {
+const allowlist = [process.env.FRONTEND_URL]; // Agrega otros dominios si es necesario
+const corsOptions = {
     origin: function (origin, callback) {
-        if (allowlist.indexOf(origin) !== -1 || !origin) {
-            callback(null, true)
+        if (!origin || allowlist.includes(origin)) { 
+            // Permitir sin origin para herramientas como Postman
+            callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'))
+            console.error(`CORS blocked origin: ${origin}`); // Para depuración
+            callback(new Error("Not allowed by CORS"));
         }
     },
-    credentials: true
-}
+    credentials: true, // Permitir cookies y encabezados de autenticación
+    optionsSuccessStatus: 200, // Para compatibilidad con navegadores antiguos
+};
+app.use(cors(corsOptions));
 
-app.use(cors(corsOptionsDelegate));
 
 // Routes
 app.use("/api/auth", authRoutes);
