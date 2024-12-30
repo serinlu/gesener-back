@@ -1,4 +1,5 @@
 import axios from "axios";
+import mongoose from "mongoose";
 import { google } from "googleapis";
 import nodemailer from "nodemailer";
 import OrderModel from "../models/order.model.js";
@@ -50,7 +51,7 @@ const success = async (req, res) => {
             `https://api.mercadopago.com/v1/payments/${paymentId}`,
             {
                 headers: {
-                    Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+                    Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
                 },
             }
         );
@@ -181,17 +182,15 @@ const sendEmailOrderByIdSuccessfully = async (req, res, next) => {
         const productList = order.products
             .map(
                 (product) => `
-                <tr>
-                    <td style="padding: 10px; border: 1px solid #ddd;">${
-                        product.title
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${product.title
                     }</td>
-                    <td style="padding: 10px; border: 1px solid #ddd;">${
-                        product.quantity
+                        <td style="padding: 10px; border: 1px solid #ddd;">${product.quantity
                     }</td>
-                    <td style="padding: 10px; border: 1px solid #ddd;">$${(
+                        <td style="padding: 10px; border: 1px solid #ddd;">$${(
                         product.unit_price * product.quantity
                     ).toFixed(2)}</td>
-                </tr>`
+                    </tr>`
             )
             .join("");
 
@@ -200,78 +199,73 @@ const sendEmailOrderByIdSuccessfully = async (req, res, next) => {
             to: order.payer.email,
             subject: "Orden de compra",
             html: `
-                <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-                    <div style="background-color: #f4f4f4; padding: 20px; text-align: center;">
-                        <h1 style="margin: 0; color: #007bff;">¡Gracias por tu compra!</h1>
-                        <p style="margin: 10px 0 0;">Tu orden ha sido procesada exitosamente.</p>
-                    </div>
-                    <div style="padding: 20px;">
-                        <h2 style="color: #333; font-size: 18px; margin-bottom: 10px;">Detalles de la Orden</h2>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                            <tr>
-                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Orden:</td>
-                                <td style="padding: 10px; border: 1px solid #ddd;">${
-                                    order.order_number
-                                }</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Monto Total:</td>
-                                <td style="padding: 10px; border: 1px solid #ddd;">$${order.total_amount.toFixed(
-                                    2
-                                )}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Estado:</td>
-                                <td style="padding: 10px; border: 1px solid #ddd;">${
-                                    order.status === "SUCCESS"
-                                        ? "Recibido"
-                                        : order.status
-                                }</td>
-                            </tr>
-                        </table>
-                        <h2 style="color: #333; font-size: 18px; margin-bottom: 10px;">Productos Comprados</h2>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                            <thead>
+                    <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                        <div style="background-color: #f4f4f4; padding: 20px; text-align: center;">
+                            <h1 style="margin: 0; color: #007bff;">¡Gracias por tu compra!</h1>
+                            <p style="margin: 10px 0 0;">Tu orden ha sido procesada exitosamente.</p>
+                        </div>
+                        <div style="padding: 20px;">
+                            <h2 style="color: #333; font-size: 18px; margin-bottom: 10px;">Detalles de la Orden</h2>
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                                 <tr>
-                                    <th style="padding: 10px; border: 1px solid #ddd; background-color: #f4f4f4;">Producto</th>
-                                    <th style="padding: 10px; border: 1px solid #ddd; background-color: #f4f4f4;">Cantidad</th>
-                                    <th style="padding: 10px; border: 1px solid #ddd; background-color: #f4f4f4;">Precio</th>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Orden:</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.order_number
+                }</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                ${productList}
-                            </tbody>
-                        </table>
-                        <h2 style="color: #333; font-size: 18px; margin-bottom: 10px;">Datos del Comprador</h2>
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <tr>
-                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Nombre:</td>
-                                <td style="padding: 10px; border: 1px solid #ddd;">${
-                                    order.payer.name
-                                } ${order.payer.surname}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Email:</td>
-                                <td style="padding: 10px; border: 1px solid #ddd;">${
-                                    order.payer.email
-                                }</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Dirección:</td>
-                                <td style="padding: 10px; border: 1px solid #ddd;">${
-                                    order.payer.address?.street_name ||
-                                    "No especificada"
-                                }</td>
-                            </tr>
-                        </table>
-                        <p style="margin: 20px 0;">Si tienes alguna pregunta o necesitas ayuda, por favor contáctanos.</p>
-                        <a href="https://tusitio.com" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px; font-size: 16px;">Ir a mis pedidos</a>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Monto Total:</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">$${order.total_amount.toFixed(
+                    2
+                )}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Estado:</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.status === "SUCCESS"
+                    ? "Recibido"
+                    : order.status
+                }</td>
+                                </tr>
+                            </table>
+                            <h2 style="color: #333; font-size: 18px; margin-bottom: 10px;">Productos Comprados</h2>
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 10px; border: 1px solid #ddd; background-color: #f4f4f4;">Producto</th>
+                                        <th style="padding: 10px; border: 1px solid #ddd; background-color: #f4f4f4;">Cantidad</th>
+                                        <th style="padding: 10px; border: 1px solid #ddd; background-color: #f4f4f4;">Precio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${productList}
+                                </tbody>
+                            </table>
+                            <h2 style="color: #333; font-size: 18px; margin-bottom: 10px;">Datos del Comprador</h2>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Nombre:</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.payer.name
+                } ${order.payer.surname}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Email:</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.payer.email
+                }</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Dirección:</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.payer.address?.street_name ||
+                "No especificada"
+                }</td>
+                                </tr>
+                            </table>
+                            <p style="margin: 20px 0;">Si tienes alguna pregunta o necesitas ayuda, por favor contáctanos.</p>
+                            <a href="https://tusitio.com" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px; font-size: 16px;">Ir a mis pedidos</a>
+                        </div>
+                        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 14px; color: #666;">
+                            <p style="margin: 0;">© 2024 Gesener. Todos los derechos reservados.</p>
+                        </div>
                     </div>
-                    <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 14px; color: #666;">
-                        <p style="margin: 0;">© 2024 Gesener. Todos los derechos reservados.</p>
-                    </div>
-                </div>
-            `,
+                `,
         };
 
         await transport.sendMail(mailOptions);

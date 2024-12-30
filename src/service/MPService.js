@@ -4,7 +4,7 @@ import { MercadoPagoConfig, Preference } from "mercadopago";
 dotenv.config();
 
 const mercadopago = new MercadoPagoConfig({
-    accessToken: process.env.MP_ACCESS_TOKEN
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
 });
 
 export const createPaymentPreference = async (orderData) => {
