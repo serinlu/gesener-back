@@ -229,9 +229,9 @@ export const login = async (req, res) => {
                 const token = generateToken(user._id, user.role);
                 res.cookie("token", token, {
                     httpOnly: true,
-                    secure: 'true',  
+                    secure: 'false',  
                     maxAge: 24 * 60 * 60 * 1000,
-                    sameSite: 'Strict',
+                    sameSite: 'None',
                 });
 
                 return res.status(200).json({ token, user });
