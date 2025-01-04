@@ -22,6 +22,14 @@ const createOrder = async (req, res, next) => {
 const generatePreference = async (req, res, next) => {
     try {
         const { orderId } = req.params;
+
+        // Validar que `orderId` exista y sea un ObjectId válido
+        if (!orderId || !mongoose.Types.ObjectId.isValid(orderId)) {
+            return res
+                .status(400)
+                .json({ message: "Invalid or missing orderId" });
+        }
+
         const order = await OrderModel.findById(orderId);
 
         if (!order) {
@@ -31,7 +39,6 @@ const generatePreference = async (req, res, next) => {
         const paymentUrl = await createPaymentPreference(order);
 
         order.preference_id = paymentUrl.id;
-
         await order.save();
 
         res.status(200).json({ paymentUrl });
@@ -183,13 +190,15 @@ const sendEmailOrderByIdSuccessfully = async (req, res, next) => {
             .map(
                 (product) => `
                     <tr>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${product.title
-                    }</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">${product.quantity
-                    }</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${
+                            product.title
+                        }</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${
+                            product.quantity
+                        }</td>
                         <td style="padding: 10px; border: 1px solid #ddd;">$${(
-                        product.unit_price * product.quantity
-                    ).toFixed(2)}</td>
+                            product.unit_price * product.quantity
+                        ).toFixed(2)}</td>
                     </tr>`
             )
             .join("");
@@ -209,21 +218,23 @@ const sendEmailOrderByIdSuccessfully = async (req, res, next) => {
                             <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                                 <tr>
                                     <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Orden:</td>
-                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.order_number
-                }</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${
+                                        order.order_number
+                                    }</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Monto Total:</td>
                                     <td style="padding: 10px; border: 1px solid #ddd;">$${order.total_amount.toFixed(
-                    2
-                )}</td>
+                                        2
+                                    )}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Estado:</td>
-                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.status === "SUCCESS"
-                    ? "Recibido"
-                    : order.status
-                }</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${
+                                        order.status === "SUCCESS"
+                                            ? "Recibido"
+                                            : order.status
+                                    }</td>
                                 </tr>
                             </table>
                             <h2 style="color: #333; font-size: 18px; margin-bottom: 10px;">Productos Comprados</h2>
@@ -243,19 +254,22 @@ const sendEmailOrderByIdSuccessfully = async (req, res, next) => {
                             <table style="width: 100%; border-collapse: collapse;">
                                 <tr>
                                     <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Nombre:</td>
-                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.payer.name
-                } ${order.payer.surname}</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${
+                                        order.payer.name
+                                    } ${order.payer.surname}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Email:</td>
-                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.payer.email
-                }</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${
+                                        order.payer.email
+                                    }</td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Dirección:</td>
-                                    <td style="padding: 10px; border: 1px solid #ddd;">${order.payer.address?.street_name ||
-                "No especificada"
-                }</td>
+                                    <td style="padding: 10px; border: 1px solid #ddd;">${
+                                        order.payer.address?.street_name ||
+                                        "No especificada"
+                                    }</td>
                                 </tr>
                             </table>
                             <p style="margin: 20px 0;">Si tienes alguna pregunta o necesitas ayuda, por favor contáctanos.</p>
