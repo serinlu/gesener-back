@@ -53,9 +53,9 @@ export const createPaymentPreference = async (orderData) => {
                 total_amount: orderData.total_amount,
                 external_reference: orderData._id?.toString() || '',
                 back_urls: {
-                    success: "http://localhost:5173/checkout/confirmation",
-                    failure: "http://localhost:3000/",
-                    pending: "http://localhost:3000/api/orders/pending"
+                    success: "https://gesener-front-delete.vercel.app/checkout/confirmation",
+                    failure: "https://gesener-front-delete.vercel.app/",
+                    pending: "https://gesener-front-delete.vercel.app/api/orders/pending"
                 },
                 auto_return: "approved",
                 notification_url: "https://webhook.site/53721604-ac7a-49ae-9947-6827deca6a16",
