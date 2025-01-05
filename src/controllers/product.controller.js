@@ -7,6 +7,15 @@ const createProduct = async (req, res) => {
     try {
         const { categories, brand, ...productData } = req.body;
 
+        // Verificar si las categorías y la marca están presentes
+        if (!categories || !Array.isArray(categories) || categories.length === 0) {
+            return res.status(400).json({ message: 'Las categorías son requeridas y deben ser un arreglo' });
+        }
+
+        if (!brand) {
+            return res.status(400).json({ message: 'La marca es requerida' });
+        }
+
         // Verificar si las categorías existen por nombre y obtener sus IDs
         const existingCategories = await Category.find({ '_id': { $in: categories } });
         const existingBrand = await Brand.findById(brand);
@@ -84,26 +93,37 @@ const updateProduct = async (req, res) => {
     try {
         const { categories, brand, ...productData } = req.body;
 
-        // Verificar si las categorías existen
-        const existingCategories = await Category.find({ '_id': { $in: categories } });
-        const existingBrand = await Brand.findById(brand);
+        let updateFields = { ...productData };
 
-        // Validar que las categorías y la marca existan
-        if (existingCategories.length !== categories.length) {
-            return res.status(400).json({ message: 'Una o más categorías no existen' });
+        // Verificar si se proporcionaron categorías
+        if (categories) {
+            // Verificar si las categorías existen
+            const existingCategories = await Category.find({ '_id': { $in: categories } });
+
+            if (existingCategories.length !== categories.length) {
+                return res.status(400).json({ message: 'Una o más categorías no existen' });
+            }
+
+            // Asignar los IDs de las categorías existentes
+            updateFields.categories = existingCategories.map(cat => cat._id);
         }
 
-        if (!existingBrand) {
-            return res.status(400).json({ message: 'La marca no existe' });
+        // Verificar si se proporcionó la marca
+        if (brand) {
+            const existingBrand = await Brand.findById(brand);
+
+            if (!existingBrand) {
+                return res.status(400).json({ message: 'La marca no existe' });
+            }
+
+            // Asignar el ID de la marca existente
+            updateFields.brand = existingBrand._id;
         }
 
+        // Actualizar el producto
         const updatedProduct = await Product.findByIdAndUpdate(
             req.params.id,
-            {
-                ...productData,
-                categories: existingCategories.map(cat => cat._id), // Asignar los IDs de las categorías existentes
-                brand: existingBrand._id // Asignar el ID de la marca existente
-            },
+            updateFields,
             { new: true } // Devuelve el documento actualizado
         );
 
