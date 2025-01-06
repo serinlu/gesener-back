@@ -1,18 +1,36 @@
 import axios from "axios";
-import mongoose from "mongoose";
 import { google } from "googleapis";
+import mongoose from "mongoose";
 import nodemailer from "nodemailer";
 import OrderModel from "../models/order.model.js";
 import { createPaymentPreference } from "../service/MPService.js";
 
 const createOrder = async (req, res, next) => {
     try {
-        const { products, payer } = req.body;
-        const order = new OrderModel({ products, payer });
+        const {
+            products,
+            payer,
+            shipping_method,
+            delivery_address,
+            store_pickup_location,
+        } = req.body;
+
+        const order = new OrderModel({
+            products,
+            payer,
+            shipping_method,
+            delivery_address:
+                shipping_method === "DELIVERY" ? delivery_address : null,
+            store_pickup_location:
+                shipping_method === "PICKUP" ? store_pickup_location : null,
+        });
+
         order.total_amount = products
             .map((product) => product.unit_price * product.quantity)
             .reduce((acc, curr) => acc + curr, 0);
+
         await order.save();
+
         res.status(201).json(order);
     } catch (error) {
         next(error);
@@ -75,7 +93,7 @@ const success = async (req, res) => {
                 order.status = "SUCCESS";
                 order.payment_id = paymentId;
                 order.order_number = paymentDetails.data.order.id;
-                order.shipping_status = "EN CAMINO";
+                order.shipping_status = "RECIBIDO";
                 // if (payerId) {
                 //     order.payer.id = payerId;
                 // }
@@ -300,6 +318,16 @@ const updateShippingStatusOrderById = async (req, res, next) => {
             return res.status(404).json({ message: "Order not found" });
         }
 
+        // Validar que el estado es válido según el método de envío
+        const validStatuses =
+            order.shipping_method === 'DELIVERY'
+                ? ['RECIBIDO', 'EN PREPARACIÓN', 'EN CAMINO', 'ENTREGADO']
+                : ['RECIBIDO', 'EN PREPARACIÓN', 'LISTO PARA RETIRAR', 'ENTREGADO'];
+
+        if (!validStatuses.includes(shipping_status)) {
+            return res.status(400).json({ message: "Invalid status for this shipping method" });
+        }
+
         order.shipping_status = shipping_status;
         await order.save();
 
@@ -320,5 +348,6 @@ export {
     pending,
     sendEmailOrderByIdSuccessfully,
     success,
-    updateShippingStatusOrderById,
+    updateShippingStatusOrderById
 };
+

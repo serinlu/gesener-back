@@ -95,9 +95,27 @@ const orderSchema = new mongoose.Schema(
         },
         shipping_status: {
             type: String,
-            enum: ['EN CAMINO', 'ENTREGADO'],
-            default: 'EN CAMINO'
+            enum: ['RECIBIDO', 'EN PREPARACIÓN', 'EN CAMINO', 'LISTO PARA RETIRAR', 'ENTREGADO'],
+            default: 'RECIBIDO'
         },
+        //-------
+        shipping_method: {
+            type: String,
+            enum: ['PICKUP', 'DELIVERY'], // Opciones de despacho
+            required: true,
+        },
+        delivery_address: {
+            street_name: { type: String },
+            street_number: { type: Number },
+            zip_code: { type: String },
+            city: { type: String },
+            country: { type: String },
+        },
+        store_pickup_location: {
+            store_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Store' },
+            store_name: { type: String },
+        },
+        //-------
         creation_date: {
             type: Date,
             default: Date.now
