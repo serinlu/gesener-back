@@ -11,6 +11,7 @@ import orderRoutes from './routes/order.route.js';
 // import paymentRoutes from './routes/payment.route.js';
 import newRoute from './routes/new.route.js';
 import successRoute from './routes/success.route.js'
+import leasingRoute from './routes/leasing.route.js'
 import RecoverPassword from './apis/recover-password.js'
 
 import search from './apis/search.js' 
@@ -55,6 +56,7 @@ app.use('/api/images', imageRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/news', newRoute)
 app.use('/api/success', successRoute)
+app.use('/api/leasings', leasingRoute);
 // app.use('/api/payment', paymentRoutes)
 app.use('/api/search', search)
 app.use('/api/recover-password', RecoverPassword)

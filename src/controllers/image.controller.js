@@ -37,10 +37,26 @@ export const uploadImage = async (req, res) => {
 // Obtener una lista de imágenes con URLs públicas y tamaños
 export const listImages = async (req, res) => {
     try {
+        // Obtener los parámetros de paginación del cliente, con valores predeterminados
+        const { page = 1, limit = 12 } = req.query;
+
+        // Convertir los valores a números
+        const pageNumber = parseInt(page, 10);
+        const limitNumber = parseInt(limit, 10);
+
+        // Obtener todos los archivos en el bucket
         const [files] = await bucket.getFiles();
 
+        // Calcular el rango para la paginación
+        const startIndex = (pageNumber - 1) * limitNumber;
+        const endIndex = startIndex + limitNumber;
+
+        // Filtrar los archivos para obtener solo los de la página solicitada
+        const paginatedFiles = files.slice(startIndex, endIndex);
+
+        // Mapear los archivos para incluir metadata y la URL pública
         const images = await Promise.all(
-            files.map(async (file) => {
+            paginatedFiles.map(async (file) => {
                 const [metadata] = await file.getMetadata();
                 return {
                     name: file.name,
@@ -50,7 +66,13 @@ export const listImages = async (req, res) => {
             })
         );
 
-        res.status(200).json(images);
+        // Devolver la respuesta con los datos paginados y la información de paginación
+        res.status(200).json({
+            data: images,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(files.length / limitNumber),
+            totalImages: files.length,
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error al listar las imágenes', error: error.message });
     }
