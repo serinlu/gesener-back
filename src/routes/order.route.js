@@ -12,6 +12,7 @@ import {
     updateShippingStatusOrderById,
     success,
 } from "../controllers/order.controller.js";
+import authMiddleware from "../../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ router.post(
     sendEmailOrderByIdSuccessfully
 );
 router.patch(
-    "/updateShippingStatusOrderById/:orderId",
+    "/updateShippingStatusOrderById/:orderId", authMiddleware,
     updateShippingStatusOrderById
 );
 

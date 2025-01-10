@@ -331,6 +331,48 @@ const updateShippingStatusOrderById = async (req, res, next) => {
         order.shipping_status = shipping_status;
         await order.save();
 
+        // Enviar email al usuario
+
+        // Send email
+        const oAuth2Client = new google.auth.OAuth2(
+            process.env.GMAIL_CLIENT_ID,
+            process.env.GMAIL_CLIENT_SECRET,
+            process.env.GMAIL_REDIRECT_URI
+        );
+        oAuth2Client.setCredentials({
+            refresh_token: process.env.GMAIL_REFRESH_TOKEN,
+        });
+
+        const accessToken = await oAuth2Client.getAccessToken();
+        const transport = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                type: "OAuth2",
+                user: process.env.GMAIL_USER,
+                clientId: process.env.GMAIL_CLIENT_ID,
+                clientSecret: process.env.GMAIL_CLIENT_SECRET,
+                refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+                accessToken: accessToken.token,
+            },
+        });
+
+        const mailOptions = {
+            from: `Orden de compra <${process.env.GMAIL_USER}>`,
+            to: req.user.email,
+            subject: `Actualización de estado de envío: ${shipping_status}`,
+            html: `
+                <h1>Hola ${order.payer.name},</h1>
+                <p>El estado de tu orden con ID <strong>${order._id}</strong> ha sido actualizado.</p>
+                <p><strong>Nuevo estado:</strong> ${shipping_status}</p>
+                <p>Gracias por confiar en nosotros.</p>
+                <p>Atentamente,<br>El equipo de soporte</p>
+            `,
+        };
+
+        await transport.sendMail(mailOptions);
+
+        // Enviar email al usuario
+
         res.status(200).json(order);
     } catch (error) {
         next(error);
