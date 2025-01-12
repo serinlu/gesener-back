@@ -4,6 +4,7 @@ import {
   getProducts,
   getProductsByCategoryId,
   getProductById,
+  getProductsWithPaginations,
   updateProduct,
   deleteProduct,
 } from '../controllers/product.controller.js';
@@ -17,6 +18,7 @@ router.post('/create', authMiddleware, checkRole(["admin"]), createProduct);    
 router.get('/', getProducts);             // Obtener todos los productos
 router.get('/category/:categoryId', getProductsByCategoryId);
 router.get('/:id', getProductById);       // Obtener un producto por ID
+router.get('/list/paginated', getProductsWithPaginations)
 router.put('/:id', authMiddleware, checkRole(["admin"]), updateProduct);        // Actualizar producto
 router.delete('/:id', authMiddleware, checkRole(["admin"]), deleteProduct);     // Eliminar producto
 

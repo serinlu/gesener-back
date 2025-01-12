@@ -60,6 +60,28 @@ const getProducts = async (req, res) => {
     }
 };
 
+export const getProductsWithPaginations = async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+
+    try {
+        const products = await Product.find()
+            .populate('categories', 'name')
+            .populate('brand', 'name')
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .exec();
+
+        const count = await Product.countDocuments();
+        res.status(200).json({
+            products,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching products', error: error.message });
+    }
+}
+
 const getProductsByCategoryId = async (req, res) => {
     const { categoryId } = req.params;
 
