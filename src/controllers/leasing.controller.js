@@ -34,10 +34,36 @@ export const createLeasing = async (req, res) => {
 
 export const getLeasings = async (req, res) => {
     try {
-        const leasings = await Leasing.find().populate('brand', 'name')
+        const { page = 1 } = req.query; // Obtiene el número de página de la query string (por defecto, página 1)
+        const limit = 12; // Número de elementos por página
+        const skip = (page - 1) * limit; // Calcula el número de elementos a omitir
+
+        // Obtén el total de elementos
+        const totalItems = await Leasing.countDocuments();
+
+        // Consulta los elementos con paginación
+        const leasings = await Leasing.find()
+            .populate('brand', 'name') // Relación con la colección `brand`, devolviendo solo el campo `name`
+            .skip(skip) // Omite los elementos según la página actual
+            .limit(limit); // Limita los resultados a 12 elementos
+
+        res.status(200).json({
+            leasings, // Datos de los leasings
+            totalItems, // Número total de elementos
+            totalPages: Math.ceil(totalItems / limit), // Total de páginas
+            currentPage: parseInt(page, 10), // Página actual (aseguramos que sea un número entero)
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener los leasings', error });
+    }
+};
+
+export const getAllLeasings = async (req, res) => {
+    try {
+        const leasings = await Leasing.find()
         res.status(200).json(leasings)
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener los leasings', error })
+        res.status(500).json({ message: 'Error al obtener los arrendamiento', error });
     }
 }
 
@@ -133,7 +159,7 @@ export const uploadManual = async (req, res) => {
     }
 };
 
-export const listManuals = async (req, res) => {
+export const listPaginatedManuals = async (req, res) => {
     try {
         // Obtener los parámetros de paginación del cliente, con valores predeterminados
         const { page = 1, limit = 12 } = req.query;
@@ -176,6 +202,26 @@ export const listManuals = async (req, res) => {
     }
 };
 
+export const listAllManuals = async (req, res) => {
+    try {
+        // Obtener todos los archivos en el bucket
+        const [files] = await manualBucket.getFiles();
+
+        // Mapear los archivos para incluir metadata y la URL pública
+        const manuals = files.map((file) => ({
+            name: file.name,
+            url: `https://storage.googleapis.com/${manualBucket.name}/${file.name}`, // URL pública
+            size: file.metadata.size, // Tamaño en bytes
+        }));
+
+        // Devolver la respuesta con todos los datos
+        res.status(200).json(manuals);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al listar los manuales', error: error.message });
+    }
+};
+
+
 export const deleteManual = async (req, res) => {
     try {
         const { manualName } = req.params;
@@ -183,11 +229,11 @@ export const deleteManual = async (req, res) => {
 
         const [exists] = await file.exists();
         if (!exists) {
-            return res.status(404).json({ message: 'manual no encontrado' });
+            return res.status(404).json({ message: 'Manual no encontrado' });
         }
 
         await file.delete();
-        res.status(200).json({ message: 'manual eliminado exitosamente' });
+        res.status(200).json({ message: 'Manual eliminado exitosamente' });
     } catch (error) {
         res.status(500).json({ message: 'Error eliminando el manual', error: error.message });
     }
@@ -228,7 +274,7 @@ export const uploadSheet = async (req, res) => {
     }
 };
 
-export const listSheets = async (req, res) => {
+export const listPaginatedSheets = async (req, res) => {
     try {
         // Obtener los parámetros de paginación del cliente, con valores predeterminados
         const { page = 1, limit = 12 } = req.query;
@@ -271,6 +317,25 @@ export const listSheets = async (req, res) => {
     }
 };
 
+export const listAllSheets = async (req, res) => {
+    try {
+        // Obtener todos los archivos en el bucket
+        const [files] = await sheetBucket.getFiles();
+
+        // Mapear los archivos para incluir metadata y la URL pública
+        const sheets = files.map((file) => ({
+            name: file.name,
+            url: `https://storage.googleapis.com/${sheetBucket.name}/${file.name}`, // URL pública
+            size: file.metadata.size, // Tamaño en bytes
+        }));
+
+        // Devolver la respuesta con todos los datos
+        res.status(200).json(sheets);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al listar las fichas', error: error.message });
+    }
+};
+
 export const deleteSheet = async (req, res) => {
     try {
         const { sheetName } = req.params;
@@ -278,11 +343,11 @@ export const deleteSheet = async (req, res) => {
 
         const [exists] = await file.exists();
         if (!exists) {
-            return res.status(404).json({ message: 'ficha no encontrada' });
+            return res.status(404).json({ message: 'Ficha no encontrada' });
         }
 
         await file.delete();
-        res.status(200).json({ message: 'ficha eliminada exitosamente' });
+        res.status(200).json({ message: 'Ficha eliminada exitosamente' });
     } catch (error) {
         res.status(500).json({ message: 'Error eliminando la ficha', error: error.message });
     }

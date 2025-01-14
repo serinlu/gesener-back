@@ -111,6 +111,31 @@ export const listImages = async (req, res) => {
   }
 };
 
+export const listAllImages = async (req, res) => {
+  try {
+    // Obtener todos los archivos en el bucket
+    const [files] = await bucket.getFiles();
+
+    // Mapear los archivos para incluir metadata y la URL pública
+    const images = await Promise.all(
+      files.map(async (file) => {
+        const [metadata] = await file.getMetadata();
+        return {
+          name: file.name,
+          url: `https://storage.googleapis.com/${bucket.name}/${file.name}`, // URL pública
+          size: metadata.size, // Tamaño en bytes
+        };
+      })
+    );
+
+    res.status(200).json({ data: images, totalImages: files.length });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al listar las imágenes", error: error.message });
+  }
+}
+
 // Obtener una imagen por su nombre con URL pública y tamaño en bytes
 export const getImage = async (req, res) => {
   try {

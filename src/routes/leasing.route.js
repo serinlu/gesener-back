@@ -3,13 +3,16 @@ import {
     createLeasing,
     getLeasingById,
     getLeasings,
+    getAllLeasings,
     updateLeasing,
     deleteLeasing,
     uploadManual,
-    listManuals,
+    listPaginatedManuals,
+    listAllManuals,
     deleteManual,
     uploadSheet,
-    listSheets,
+    listPaginatedSheets,
+    listAllSheets,
     deleteSheet
 } from '../controllers/leasing.controller.js';
 import checkRole from '../../middlewares/checkRole.js';
@@ -34,17 +37,20 @@ const router = express.Router();
 // Rutas para gestionar leasing
 router.post('/create', authMiddleware, checkRole(['admin']), createLeasing);
 router.get('/', getLeasings);
+router.get('/all/get', getAllLeasings);
 router.get('/:id', getLeasingById);
 router.put('/:id', authMiddleware, checkRole(['admin']), updateLeasing);
 router.delete('/:id', authMiddleware, checkRole(['admin']), deleteLeasing);
 
 // Rutas específicas para PDFs (manuales y fichas técnicas)
 router.post('/manuals/uploadManual', authMiddleware, checkRole(['admin']), upload.single('file'), uploadManual);
-router.get('/manuals/listManuals', authMiddleware, checkRole(['admin']), listManuals);
-router.delete('/manuals/deleteManual/:name', authMiddleware, checkRole(['admin']), deleteManual);
+router.get('/manuals/listManuals', authMiddleware, checkRole(['admin']), listPaginatedManuals);
+router.get('/manuals/listAllManuals', authMiddleware, checkRole(['admin']), listAllManuals);
+router.delete('/manuals/deleteManual/:manualName', authMiddleware, checkRole(['admin']), deleteManual);
 
 router.post('/sheets/uploadSheet', authMiddleware, checkRole(['admin']), upload.single('file'), uploadSheet);
-router.get('/sheets/listSheets', authMiddleware, checkRole(['admin']), listSheets);
-router.delete('/sheets/deleteSheet/:name', authMiddleware, checkRole(['admin']), deleteSheet);
+router.get('/sheets/listSheets', authMiddleware, checkRole(['admin']), listPaginatedSheets);
+router.get('/sheets/listAllSheets', authMiddleware, checkRole(['admin']), listAllSheets);
+router.delete('/sheets/deleteSheet/:sheetName', authMiddleware, checkRole(['admin']), deleteSheet);
 
 export default router;
