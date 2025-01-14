@@ -1,6 +1,8 @@
 import Product from '../models/product.model.js';
 import Category from '../models/category.model.js';
 import Brand from '../models/brand.model.js';
+import multer from 'multer'
+import xlsx from 'xlsx';
 
 // Crear producto
 const createProduct = async (req, res) => {
@@ -47,6 +49,77 @@ const createProduct = async (req, res) => {
         res.status(201).json(savedProduct);
     } catch (error) {
         res.status(500).json({ message: 'Error al crear el producto', error });
+    }
+};
+
+const storage = multer.memoryStorage();
+export const upload = multer({ storage });
+
+export const createProductsFromExcel = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'Debe seleccionar un archivo Excel' });
+        }
+
+        const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const data = xlsx.utils.sheet_to_json(sheet);
+
+        if (data.length === 0) {
+            return res.status(400).json({ message: "El archivo Excel está vacío" });
+        }
+
+        const products = [];
+        for (const row of data) {
+            const { sku, name, brand, model, categories, description, price, countInStock, maxItems, imageUrl } = row;
+
+            // Validaciones básicas
+            if (!sku || !name || !brand || !categories || !description || !price || !countInStock || !maxItems) {
+                return res.status(400).json({ message: "Faltan campos obligatorios en el archivo Excel" });
+            }
+
+            // Obtener categorías por nombre
+            const categoryNames = categories.split(",").map((cat) => cat.trim());
+            const existingCategories = await Category.find({ name: { $in: categoryNames } });
+
+            if (existingCategories.length !== categoryNames.length) {
+                return res.status(400).json({
+                    message: "Una o más categorías no existen",
+                    invalidCategories: categoryNames.filter(
+                        (cat) => !existingCategories.some((existCat) => existCat.name === cat)
+                    ),
+                });
+            }
+
+            // Verificar marca por nombre
+            const existingBrand = await Brand.findOne({ name: brand });
+            if (!existingBrand) {
+                return res.status(400).json({ message: `La marca '${brand}' no existe` });
+            }
+
+            // Preparar el producto para ser guardado
+            products.push({
+                sku,
+                name,
+                brand: existingBrand._id,
+                model,
+                categories: existingCategories.map((cat) => cat._id),
+                description,
+                price,
+                countInStock,
+                maxItems,
+                imageUrl: imageUrl || "",
+            });
+        }
+
+        // Guardar todos los productos en la base de datos
+        const createdProducts = await Product.insertMany(products);
+
+        // Responder con los productos creados
+        res.status(201).json({ message: "Productos creados exitosamente", createdProducts });
+    } catch (error) {
+        res.status(500).json({ message: "Error al procesar el archivo Excel", error: error.message });
     }
 };
 
