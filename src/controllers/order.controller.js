@@ -358,11 +358,11 @@ const updateShippingStatusOrderById = async (req, res, next) => {
 
         const mailOptions = {
             from: `Orden de compra <${process.env.GMAIL_USER}>`,
-            to: req.user.email,
+            to: order.payer.email,
             subject: `Actualización de estado de envío: ${shipping_status}`,
             html: `
                 <h1>Hola ${order.payer.name},</h1>
-                <p>El estado de tu orden con ID <strong>${order._id}</strong> ha sido actualizado.</p>
+                <p>El estado de tu orden con # <strong>${order.order_number}</strong> ha sido actualizado.</p>
                 <p><strong>Nuevo estado:</strong> ${shipping_status}</p>
                 <p>Gracias por confiar en nosotros.</p>
                 <p>Atentamente,<br>El equipo de soporte</p>
