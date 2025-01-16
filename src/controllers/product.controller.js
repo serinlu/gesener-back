@@ -52,6 +52,7 @@ const createProduct = async (req, res) => {
     }
 };
 
+//crear porducto mediante archivo excel
 const storage = multer.memoryStorage();
 export const upload = multer({ storage });
 
