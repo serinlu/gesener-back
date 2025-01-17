@@ -46,7 +46,7 @@ connectDB();
 // app.use(cors(corsOptions));
 
 app.use(cors({
-    origin: 'https://gesener.pe',
+    origin: 'https://www.gesener.pe',
     credentials: true
 }))
 
