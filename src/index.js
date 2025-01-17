@@ -45,10 +45,21 @@ connectDB();
 // };
 // app.use(cors(corsOptions));
 
-app.use(cors({
-    origin: 'https://www.gesener.pe',
-    credentials: true
-}))
+const allowlist = ['https://www.gesener.pe', 'https://gesener.pe'];
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        // Permitir solicitudes sin origen (como desde Postman)
+        if (!origin || allowlist.includes(origin)) {
+            callback(null, true); // Permitir el origen
+        } else {
+            callback(new Error('Not allowed by CORS')); // Bloquear el origen
+        }
+    },
+    credentials: true, // Permitir envío de cookies y encabezados de autenticación
+};
+
+app.use(cors(corsOptions));
 
 // Routes
 app.use("/api/auth", authRoutes);
