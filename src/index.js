@@ -28,22 +28,27 @@ dotenv.config();
 connectDB();
 
 // Middleware
-const corsOptions = {
-    origin: (origin, callback) => {
-        const allowlist = 'https://gesener.pe'; // Agrega más dominios si es necesario
-        if (!origin || allowlist.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.error(`CORS blocked origin: ${origin}`); // Para depuración
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // Permitir cookies y encabezados de autenticación
-    optionsSuccessStatus: 200, // Para navegadores antiguos como IE11
-};
-app.use(cors(corsOptions));
+// const corsOptions = {
+//     origin: (origin, callback) => {
+//         const allowlist = 'https://gesener.pe'; // Agrega más dominios si es necesario
+//         if (!origin || allowlist.includes(origin)) {
+//             callback(null, true);
+//         } else {
+//             console.error(`CORS blocked origin: ${origin}`); // Para depuración
+//             callback(new Error("Not allowed by CORS"));
+//         }
+//     },
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     credentials: true, // Permitir cookies y encabezados de autenticación
+//     optionsSuccessStatus: 200, // Para navegadores antiguos como IE11
+// };
+// app.use(cors(corsOptions));
+
+app.use(cors({
+    origin: 'https://gesener.pe',
+    credentials: true
+}))
 
 // Routes
 app.use("/api/auth", authRoutes);
