@@ -14,7 +14,7 @@ import successRoute from './routes/success.route.js'
 import leasingRoute from './routes/leasing.route.js'
 import RecoverPassword from './apis/recover-password.js'
 
-import search from './apis/search.js' 
+import search from './apis/search.js'
 
 import cors from 'cors';
 import cookieParser from "cookie-parser";
@@ -28,23 +28,22 @@ dotenv.config();
 connectDB();
 
 // Middleware
-
-const allowlist = [process.env.FRONTEND_URL]; // Agrega otros dominios si es necesario
 const corsOptions = {
-    origin: function (origin, callback) {
-        if (!origin || allowlist.includes(origin)) { 
-            // Permitir sin origin para herramientas como Postman
+    origin: (origin, callback) => {
+        const allowlist = 'https://gesener.pe'; // Agrega más dominios si es necesario
+        if (!origin || allowlist.includes(origin)) {
             callback(null, true);
         } else {
             console.error(`CORS blocked origin: ${origin}`); // Para depuración
             callback(new Error("Not allowed by CORS"));
         }
     },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // Permitir cookies y encabezados de autenticación
-    optionsSuccessStatus: 200, // Para compatibilidad con navegadores antiguos
+    optionsSuccessStatus: 200, // Para navegadores antiguos como IE11
 };
 app.use(cors(corsOptions));
-
 
 // Routes
 app.use("/api/auth", authRoutes);
