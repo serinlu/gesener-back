@@ -45,7 +45,7 @@ connectDB();
 // };
 // app.use(cors(corsOptions));
 
-const allowlist = ['https://www.gesener.pe', 'https://gesener.pe'];
+const allowlist = ['https://www.gesener.pe', 'https://gesener.pe', 'http://localhost:5173'];
 
 const corsOptions = {
     origin: (origin, callback) => {

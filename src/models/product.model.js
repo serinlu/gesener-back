@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
     sku: {
-        type: Number,
+        type: String,
         required: true,
         unique: true,
     },
@@ -23,7 +23,7 @@ const productSchema = new mongoose.Schema({
     categories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category', // Asegúrate de que el nombre del modelo coincida con el import
-        required: true,
+        required: false,
     }],
     description: {
         type: String,

@@ -73,30 +73,48 @@ export const createProductsFromExcel = async (req, res) => {
 
         const products = [];
         for (const row of data) {
-            const { sku, name, brand, model, categories, description, price, countInStock, maxItems, imageUrl } = row;
+            const {
+                sku,
+                name,
+                brand,
+                model,
+                categories = "",
+                description = "",
+                price,
+                countInStock,
+                maxItems,
+                imageUrl = "",
+            } = row;
 
-            // Validaciones básicas
-            if (!sku || !name || !brand || !categories || !description || !price || !countInStock || !maxItems) {
-                return res.status(400).json({ message: "Faltan campos obligatorios en el archivo Excel" });
-            }
-
-            // Obtener categorías por nombre
-            const categoryNames = categories.split(",").map((cat) => cat.trim());
-            const existingCategories = await Category.find({ name: { $in: categoryNames } });
-
-            if (existingCategories.length !== categoryNames.length) {
+            // Validaciones obligatorias
+            if (!sku || !name || !brand || !price || !countInStock || !maxItems) {
                 return res.status(400).json({
-                    message: "Una o más categorías no existen",
-                    invalidCategories: categoryNames.filter(
-                        (cat) => !existingCategories.some((existCat) => existCat.name === cat)
-                    ),
+                    message: "Faltan campos obligatorios en el archivo Excel",
                 });
             }
 
-            // Verificar marca por nombre
+            // Obtener la marca por nombre
             const existingBrand = await Brand.findOne({ name: brand });
             if (!existingBrand) {
                 return res.status(400).json({ message: `La marca '${brand}' no existe` });
+            }
+
+            // Manejar categorías opcionales
+            let categoryIds = [];
+            if (categories) {
+                const categoryNames = categories.split(",").map((cat) => cat.trim());
+                const existingCategories = await Category.find({ name: { $in: categoryNames } });
+
+                if (existingCategories.length !== categoryNames.length) {
+                    return res.status(400).json({
+                        message: "Una o más categorías no existen",
+                        invalidCategories: categoryNames.filter(
+                            (cat) => !existingCategories.some((existCat) => existCat.name === cat)
+                        ),
+                    });
+                }
+
+                categoryIds = existingCategories.map((cat) => cat._id);
             }
 
             // Preparar el producto para ser guardado
@@ -104,13 +122,13 @@ export const createProductsFromExcel = async (req, res) => {
                 sku,
                 name,
                 brand: existingBrand._id,
-                model,
-                categories: existingCategories.map((cat) => cat._id),
+                model: model || null,
+                categories: categoryIds,
                 description,
                 price,
                 countInStock,
                 maxItems,
-                imageUrl: imageUrl || "",
+                imageUrl,
             });
         }
 
@@ -118,11 +136,18 @@ export const createProductsFromExcel = async (req, res) => {
         const createdProducts = await Product.insertMany(products);
 
         // Responder con los productos creados
-        res.status(201).json({ message: "Productos creados exitosamente", createdProducts });
+        res.status(201).json({
+            message: "Productos creados exitosamente",
+            createdProducts,
+        });
     } catch (error) {
-        res.status(500).json({ message: "Error al procesar el archivo Excel", error: error.message });
+        res.status(500).json({
+            message: "Error al procesar el archivo Excel",
+            error: error.message,
+        });
     }
 };
+
 
 // Obtener todos los productos
 const getProducts = async (req, res) => {
