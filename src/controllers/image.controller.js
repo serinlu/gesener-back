@@ -2,66 +2,57 @@
 import { bucket } from "../../config/gcpStorage.js";
 import sharp from "sharp";
 
-export const uploadImage = async (req, res) => {
+export const uploadImages = async (req, res) => {
   try {
-    // Verificar que el archivo esté presente
-    if (!req.file) {
-      console.error("No se ha proporcionado ningún archivo");
-      return res
-        .status(400)
-        .json({ message: "No se ha proporcionado ningún archivo" });
+    // Verificar que se hayan proporcionado archivos
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No se han proporcionado archivos' });
     }
 
-    // Tamaño original del archivo
-    const originalSize = req.file.size;
-    console.log(`Tamaño original del archivo: ${originalSize} bytes`);
+    const uploadedImages = [];
 
-    // Nombre original del archivo sin extensión
-    const originalName = req.file.originalname
-      .split(".")
-      .slice(0, -1)
-      .join(".");
-    const optimizedFileName = `${originalName}.webp`;
-    const file = bucket.file(optimizedFileName);
+    for (const file of req.files) {
+      try {
+        // Nombre original del archivo sin extensión
+        const originalName = file.originalname.split('.').slice(0, -1).join('.');
+        const optimizedFileName = `${originalName}.webp`;
+        const bucketFile = bucket.file(optimizedFileName);
 
-    const optimizedImageBuffer = await sharp(req.file.buffer)
-      .webp({ quality: 80 })
-      .toBuffer();
+        // Optimizar la imagen
+        const optimizedImageBuffer = await sharp(file.buffer)
+          .webp({ quality: 80 })
+          .toBuffer();
 
-    const optimizedSize = optimizedImageBuffer.length;
-    console.log(`Tamaño después de la compresión: ${optimizedSize} bytes`);
+        // Subir la imagen al bucket
+        const stream = bucketFile.createWriteStream({
+          metadata: { contentType: 'image/webp' },
+          predefinedAcl: 'publicRead', // Hacer que el archivo sea público
+        });
 
-    const reductionPercentage =
-      ((originalSize - optimizedSize) / originalSize) * 100;
-    console.log(`Reducción de tamaño: ${reductionPercentage.toFixed(2)}%`);
+        await new Promise((resolve, reject) => {
+          stream.on('error', reject);
+          stream.on('finish', resolve);
+          stream.end(optimizedImageBuffer);
+        });
 
-    // Crear flujo de subida
-    const stream = file.createWriteStream({
-      metadata: { contentType: "image/webp" },
-      predefinedAcl: "publicRead", // Configurar para hacer que el archivo sea público
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${optimizedFileName}`;
+        uploadedImages.push({ originalName: file.originalname, imageUrl: publicUrl });
+      } catch (error) {
+        console.error(`Error procesando la imagen ${file.originalname}:`, error.message);
+      }
+    }
+
+    if (uploadedImages.length === 0) {
+      return res.status(500).json({ message: 'Error subiendo las imágenes' });
+    }
+
+    res.status(200).json({
+      message: 'Imágenes subidas exitosamente',
+      uploadedImages,
     });
-
-    stream.on("error", (error) => {
-      console.error("Error al subir la imagen:", error.message);
-      res
-        .status(500)
-        .json({ message: "Error subiendo la imagen", error: error.message });
-    });
-
-    stream.on("finish", () => {
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${optimizedFileName}`;
-      console.log(`Imagen subida exitosamente: ${publicUrl}`);
-      res
-        .status(200)
-        .json({ message: "Imagen subida exitosamente", imageUrl: publicUrl });
-    });
-
-    stream.end(optimizedImageBuffer);
   } catch (error) {
-    console.error("Error en el proceso de subida de la imagen:", error.message);
-    res
-      .status(500)
-      .json({ message: "Error subiendo la imagen", error: error.message });
+    console.error('Error en el proceso de subida de las imágenes:', error.message);
+    res.status(500).json({ message: 'Error subiendo las imágenes', error: error.message });
   }
 };
 

@@ -1,11 +1,11 @@
 // routes/imageRoutes.js
 import express from 'express';
-import { uploadImage, listImages, getImage, listAllImages, deleteImage } from '../controllers/image.controller.js'; // Importar el controlador de imágenes
+import { uploadImages, listImages, getImage, listAllImages, deleteImage } from '../controllers/image.controller.js'; // Importar el controlador de imágenes
 import { upload } from '../../config/multer.js';
 
 const router = express.Router();
 
-router.post('/upload', upload.single('file'), uploadImage);
+router.post('/upload', upload, uploadImages);
 router.get('/', listImages);
 router.get('/list/all', listAllImages);
 router.get('/:imageName', getImage);
