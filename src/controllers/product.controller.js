@@ -62,7 +62,6 @@ export const createProductsFromExcel = async (req, res) => {
             return res.status(400).json({ message: 'Debe seleccionar un archivo Excel' });
         }
 
-        // Leer el archivo Excel
         const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
@@ -72,18 +71,7 @@ export const createProductsFromExcel = async (req, res) => {
             return res.status(400).json({ message: "El archivo Excel está vacío" });
         }
 
-        // Normalizar SKUs y eliminar duplicados dentro del archivo Excel
-        const skusInExcel = [...new Set(
-            data
-                .map(row => row.sku ? String(row.sku).trim().toLowerCase() : null) // Convertir a string y manejar nulos
-                .filter(sku => sku) // Eliminar valores nulos o vacíos
-        )];
-
-        // Buscar productos existentes por SKU
-        const existingProducts = await Product.find({ sku: { $in: skusInExcel } });
-        const existingSkus = new Set(existingProducts.map(product => product.sku.toLowerCase()));
-
-        const productsToCreate = [];
+        const products = [];
         for (const row of data) {
             const {
                 sku,
@@ -93,80 +81,65 @@ export const createProductsFromExcel = async (req, res) => {
                 categories = "",
                 description = "",
                 price,
+                countInStock,
+                maxItems,
                 imageUrl = "",
             } = row;
 
-            // Normalizar campos del archivo Excel
-            const normalizedSku = sku ? String(sku).trim().toLowerCase() : null;
-            const normalizedName = name ? String(name).trim() : null;
-            const normalizedBrand = brand ? String(brand).trim() : null;
-            const normalizedModel = model ? String(model).trim() : null;
-            const normalizedCategories = categories ? String(categories).trim() : "";
-            const normalizedDescription = description ? String(description).trim() : null;
-            const normalizedPrice = price ? Number(price) : null;
-            const normalizedImageUrl = imageUrl ? String(imageUrl).trim() : "";
-
-            // Saltar si el SKU ya existe o es nulo
-            if (!normalizedSku || existingSkus.has(normalizedSku)) {
-                continue;
-            }
-
             // Validaciones obligatorias
-            if (!normalizedName || !normalizedBrand || !normalizedPrice) {
+            if (!sku || !name || !brand || !price || !countInStock || !maxItems) {
                 return res.status(400).json({
                     message: "Faltan campos obligatorios en el archivo Excel",
                 });
             }
 
             // Obtener la marca por nombre
-            const existingBrand = await Brand.findOne({ name: normalizedBrand });
+            const existingBrand = await Brand.findOne({ name: brand });
             if (!existingBrand) {
-                return res.status(400).json({ message: `La marca '${normalizedBrand}' no existe` });
+                return res.status(400).json({ message: `La marca '${brand}' no existe` });
             }
 
             // Manejar categorías opcionales
             let categoryIds = [];
-            if (normalizedCategories) {
-                const categoryNames = normalizedCategories.split(",").map(cat => cat.trim());
+            if (categories) {
+                const categoryNames = categories.split(",").map((cat) => cat.trim());
                 const existingCategories = await Category.find({ name: { $in: categoryNames } });
 
                 if (existingCategories.length !== categoryNames.length) {
                     return res.status(400).json({
                         message: "Una o más categorías no existen",
                         invalidCategories: categoryNames.filter(
-                            cat => !existingCategories.some(existCat => existCat.name === cat)
+                            (cat) => !existingCategories.some((existCat) => existCat.name === cat)
                         ),
                     });
                 }
 
-                categoryIds = existingCategories.map(cat => cat._id);
+                categoryIds = existingCategories.map((cat) => cat._id);
             }
 
-            // Preparar el producto para ser creado
-            productsToCreate.push({
-                sku: normalizedSku,
-                name: normalizedName,
+            // Preparar el producto para ser guardado
+            products.push({
+                sku,
+                name,
                 brand: existingBrand._id,
-                model: normalizedModel || null,
+                model: model || null,
                 categories: categoryIds,
-                description: normalizedDescription,
-                price: normalizedPrice,
-                countInStock: 0, // Siempre 0 por defecto
-                maxItems: 0, // Siempre 0 por defecto
-                imageUrl: normalizedImageUrl,
+                description,
+                price,
+                countInStock,
+                maxItems,
+                imageUrl,
             });
         }
 
-        // Guardar los nuevos productos en la base de datos
-        if (productsToCreate.length > 0) {
-            const createdProducts = await Product.insertMany(productsToCreate);
-            res.status(201).json({
-                message: `${createdProducts.length} productos creados exitosamente`,
-                createdProducts,
-            });
-        } else {
-            res.status(200).json({ message: "No hay productos nuevos para agregar" });
-        }
+        // Guardar todos los productos en la base de datos
+        const createdProducts = await Product.insertMany(products);
+
+        // Responder con los productos creados
+        res.status(201).json({
+            message: "Productos creados exitosamente",
+            createdProducts,
+        });
     } catch (error) {
         res.status(500).json({
             message: "Error al procesar el archivo Excel",
@@ -187,7 +160,7 @@ const getProducts = async (req, res) => {
 };
 
 export const getProductsWithPaginations = async (req, res) => {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 12 } = req.query;
 
     try {
         const products = await Product.find()
