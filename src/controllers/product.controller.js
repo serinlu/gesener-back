@@ -54,7 +54,17 @@ const createProduct = async (req, res) => {
 };
 
 export const getFilteredProducts = async (req, res) => {
-    const { category, brand, minPrice, maxPrice, search, page = 1, limit = 12 } = req.query;
+    const { 
+        category, 
+        brand, 
+        minPrice, 
+        maxPrice, 
+        search, 
+        page = 1, 
+        limit = 12, 
+        sortBy = 'name', // Criterio de ordenamiento por defecto
+        order = 'asc' // Orden ascendente por defecto
+    } = req.query;
 
     try {
         // Construir el filtro dinámicamente
@@ -67,14 +77,12 @@ export const getFilteredProducts = async (req, res) => {
 
         // Filtro por categoría (si se proporciona)
         if (category) {
-            // Convertir las categorías en un array de ObjectIds
             const categoryIds = category.split(',').map(id => new mongoose.Types.ObjectId(id.trim()));
             filter.categories = { $in: categoryIds }; // Buscar en el array de ObjectIds
         }
 
         // Filtro por marca (si se proporciona)
         if (brand) {
-            // Convertir las marcas en un array de ObjectIds
             const brandIds = brand.split(',').map(id => new mongoose.Types.ObjectId(id.trim()));
             filter.brand = { $in: brandIds }; // Buscar en el array de ObjectIds
         }
@@ -89,10 +97,16 @@ export const getFilteredProducts = async (req, res) => {
         // Calcular la paginación
         const skip = (page - 1) * limit;
 
-        // Consultar productos con filtros y paginación
+        // Definir el criterio de ordenamiento
+        const sortCriteria = {
+            [sortBy]: order === 'asc' ? 1 : -1, // 1 para ascendente, -1 para descendente
+        };
+
+        // Consultar productos con filtros, paginación y ordenamiento
         const products = await Product.find(filter)
             .populate('categories', 'name')
             .populate('brand', 'name')
+            .sort(sortCriteria) // Aplicar el ordenamiento
             .skip(skip)
             .limit(Number(limit));
 
@@ -114,6 +128,7 @@ export const getFilteredProducts = async (req, res) => {
         });
     }
 };
+
 
 //crear porducto mediante archivo excel
 const storage = multer.memoryStorage();
