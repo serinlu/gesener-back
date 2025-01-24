@@ -8,7 +8,8 @@ import {
   updateProduct,
   deleteProduct,
   upload,
-  createProductsFromExcel
+  createProductsFromExcel,
+  getFilteredProducts
 } from '../controllers/product.controller.js';
 import checkRole from '../../middlewares/checkRole.js';
 import authMiddleware from '../../middlewares/authMiddleware.js';
@@ -22,6 +23,7 @@ router.get('/', getProducts);             // Obtener todos los productos
 router.get('/category/:categoryId', getProductsByCategoryId);
 router.get('/:id', getProductById);       // Obtener un producto por ID
 router.get('/list/paginated', getProductsWithPaginations)
+router.get('/list/filtered', getFilteredProducts)
 router.put('/:id', authMiddleware, checkRole(["admin"]), updateProduct);        // Actualizar producto
 router.delete('/:id', authMiddleware, checkRole(["admin"]), deleteProduct);     // Eliminar producto
 

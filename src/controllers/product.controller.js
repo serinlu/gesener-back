@@ -3,6 +3,7 @@ import Category from '../models/category.model.js';
 import Brand from '../models/brand.model.js';
 import multer from 'multer'
 import xlsx from 'xlsx';
+import mongoose from 'mongoose';
 
 // Crear producto
 const createProduct = async (req, res) => {
@@ -49,6 +50,68 @@ const createProduct = async (req, res) => {
         res.status(201).json(savedProduct);
     } catch (error) {
         res.status(500).json({ message: 'Error al crear el producto', error });
+    }
+};
+
+export const getFilteredProducts = async (req, res) => {
+    const { category, brand, minPrice, maxPrice, search, page = 1, limit = 12 } = req.query;
+
+    try {
+        // Construir el filtro dinámicamente
+        const filter = {};
+
+        // Filtro de búsqueda (por nombre)
+        if (search) {
+            filter.name = { $regex: search, $options: 'i' }; // Insensible a mayúsculas/minúsculas
+        }
+
+        // Filtro por categoría (si se proporciona)
+        if (category) {
+            // Convertir las categorías en un array de ObjectIds
+            const categoryIds = category.split(',').map(id => new mongoose.Types.ObjectId(id.trim()));
+            filter.categories = { $in: categoryIds }; // Buscar en el array de ObjectIds
+        }
+
+        // Filtro por marca (si se proporciona)
+        if (brand) {
+            // Convertir las marcas en un array de ObjectIds
+            const brandIds = brand.split(',').map(id => new mongoose.Types.ObjectId(id.trim()));
+            filter.brand = { $in: brandIds }; // Buscar en el array de ObjectIds
+        }
+
+        // Filtro por rango de precio
+        if (minPrice || maxPrice) {
+            filter.price = {};
+            if (minPrice) filter.price.$gte = Number(minPrice); // Mínimo
+            if (maxPrice) filter.price.$lte = Number(maxPrice); // Máximo
+        }
+
+        // Calcular la paginación
+        const skip = (page - 1) * limit;
+
+        // Consultar productos con filtros y paginación
+        const products = await Product.find(filter)
+            .populate('categories', 'name')
+            .populate('brand', 'name')
+            .skip(skip)
+            .limit(Number(limit));
+
+        // Calcular el total de productos para la paginación
+        const totalProducts = await Product.countDocuments(filter);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        // Responder con los datos
+        res.status(200).json({
+            products,
+            totalPages,
+            currentPage: Number(page),
+            totalProducts,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error al obtener los productos filtrados',
+            error: error.message,
+        });
     }
 };
 
@@ -147,7 +210,6 @@ export const createProductsFromExcel = async (req, res) => {
         });
     }
 };
-
 
 // Obtener todos los productos
 const getProducts = async (req, res) => {
