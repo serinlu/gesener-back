@@ -14,12 +14,13 @@ const createBrand = async (req, res) => {
 
 const getBrands = async (req, res) => {
     try {
-        const brands = await Brand.find();
+        // Ordenar las marcas alfabéticamente por nombre (de A-Z)
+        const brands = await Brand.find().sort({ name: 1 });
         res.status(200).json(brands);
     } catch (error) {
         res.status(404).json({ message: error.message });
     }
-}
+};
 
 export const getPaginatedBrands = async (req, res) => {
     try {
